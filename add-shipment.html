@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ULKA LOGISTICS | Add Shipment</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background: #f8f2f8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px;
+            background: white;
+            border: 2px solid #e3c1d7;
+            border-radius: 14px;
+        }
+
+        h1 { color: #76245c; }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            font-weight: bold;
+        }
+
+        input, select {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #d3a4ca;
+            border-radius: 7px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 22px;
+            background: #eb25a6;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #b91980; }
+
+        #message {
+            margin-top: 18px;
+            overflow-wrap: anywhere;
+        }
+
+        a { color: #b91980; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>ULKA LOGISTICS</h1>
+        <h2>Register a Shipment</h2>
+
+        <form id="shipmentForm">
+            <label for="trackingNumber">Tracking Number</label>
+            <input id="trackingNumber" required
+                   placeholder="Example: ULK004">
+
+            <label for="customer">Customer Name</label>
+            <input id="customer" required
+                   placeholder="Enter customer name">
+
+            <label for="destination">Destination</label>
+            <input id="destination" required
+                   placeholder="Example: Cameroon">
+
+            <label for="weight">Weight (kg)</label>
+            <input id="weight" type="number" min="0.01"
+                   step="any" required placeholder="Enter weight">
+
+            <label for="status">Shipment Status</label>
+            <select id="status" required>
+                <option value="Pending">Pending</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+            </select>
+
+            <button type="submit">Register Shipment</button>
+        </form>
+
+        <p id="message" role="status"></p>
+
+        <a href="/shipments.html">View Shipment Dashboard</a>
+    </main>
+
+    <script>
+        const form = document.getElementById("shipmentForm");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const shipment = {
+                trackingNumber:
+                    document.getElementById("trackingNumber").value.trim(),
+                customer:
+                    document.getElementById("customer").value.trim(),
+                destination:
+                    document.getElementById("destination").value.trim(),
+                weight:
+                    document.getElementById("weight").value,
+                status:
+                    document.getElementById("status").value
+            };
+
+            message.textContent = "Registering shipment...";
+
+            try {
+                const response = await fetch("/api/shipments", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(shipment)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message ||
+                        "Unable to register shipment.");
+                }
+
+                message.textContent =
+                    "Success! Tracking number: " + data.trackingNumber;
+
+                form.reset();
+            } catch (error) {
+                message.textContent = "Error: " + error.message;
+            }
+        });
+
+        async function checkCustomerSession() {
+            try {
+                const response = await fetch("/api/customers/me", {
+                    credentials: "same-origin"
+                });
+
+                if (response.status === 401) {
+                    window.location.replace("/login.html");
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Unable to verify your login.");
+                }
+            } catch (error) {
+                message.textContent = error.message;
+                form.querySelector("button[type='submit']").disabled = true;
+            }
+        }
+
+        checkCustomerSession();
+
+    </script>
+</body>
+</html>

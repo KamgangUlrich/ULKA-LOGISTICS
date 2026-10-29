@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ULKA LOGISTICS</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <div
+        class="login-box"
+        id="loginSection"
+    >
+
+        <h1>
+            ULKA LOGISTICS
+        </h1>
+
+        <h2>
+            Login
+        </h2>
+
+
+        <form id="loginForm">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+            >
+
+
+            <label for="password">
+                Password
+            </label>
+
+
+            <div class="password-container">
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                >
+
+                <button
+                    type="button"
+                    id="showPassword"
+                >
+                    SHOW
+                </button>
+
+            </div>
+
+
+            <div class="remember-container">
+
+                <input
+                    type="checkbox"
+                    id="rememberMe"
+                >
+
+                <label for="rememberMe">
+                    Remember me
+                </label>
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="loginButton"
+            >
+                LOGIN
+            </button>
+
+
+            <button
+                type="button"
+                id="clearButton"
+                class="clear-button"
+            >
+                CLEAR
+            </button>
+
+
+            <p id="message"></p>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =========================
+         MAIN APPLICATION
+    ========================== -->
+
+    <div
+        class="main-application"
+        id="mainApplication"
+    >
+
+
+        <!-- HEADER -->
+
+        <div class="app-header">
+
+            <div>
+
+                <h1>
+                    ULKA LOGISTICS
+                </h1>
+
+                <p>
+                    Transport Management System
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong
+                        id="loggedUserName"
+                    >
+                        User
+                    </strong>
+
+                    <span
+                        id="loggedUserRole"
+                    >
+                        Role
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    LOGOUT
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ROLE BANNER -->
+
+        <div
+            class="role-banner"
+            id="roleBanner"
+        >
+            Welcome
+        </div>
+
+        
+        <!-- ULKA LOGISTICS SIDEBAR LAYOUT -->
+        <div class="app-shell">
+
+            <aside class="app-sidebar" id="appSidebar">
+                <div class="sidebar-brand">
+                    <span class="sidebar-brand-icon">U</span>
+                    <div>
+                        <h2>ULKA</h2>
+                        <p>LOGISTICS</p>
+                    </div>
+                </div>
+
+                <p class="sidebar-label">MAIN MENU</p>
+
+                <nav class="sidebar-navigation" aria-label="Main navigation">
+                    <button type="button" class="sidebar-link active"
+                        data-view="dashboard">
+                        <span>▦</span> Dashboard
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="shipments">
+                        <span>⇄</span> Shipments
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="customers">
+                        <span>♙</span> Customers
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="staff">
+                        <span>♧</span> Staff Management
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="tracking">
+                        <span>⌖</span> Shipment Tracking
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="reports">
+                        <span>▤</span> Reports &amp; Analytics
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="settings">
+                        <span>⚙</span> Settings
+                    </button>
+
+                    <button type="button" class="sidebar-link"
+                        data-view="profile">
+                        <span>♙</span> My Profile
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <p>ULKA LOGISTICS</p>
+                    <span>Transport Management System</span>
+                </div>
+            </aside>
+
+            <main class="app-content" id="appContent">
+
+
+
+
+        <!-- =========================
+             ADMIN USER MANAGEMENT
+        ========================== -->
+
+        <div
+            class="user-management"
+            id="userManagement"
+        >
+
+            <h2>
+                👥 User Management
+            </h2>
+
+
+            <div class="user-management-header">
+
+                <p>
+                    Create and manage ULKA LOGISTICS users.
+                </p>
+
+                <button
+                    type="button"
+                    id="newUserButton"
+                >
+                    + NEW USER
+                </button>
+
+            </div>
+
+
+            <!-- USER FORM -->
+
+            <div
+                class="user-form-container"
+                id="userFormContainer"
+            >
+
+                <h3
+                    id="userFormTitle"
+                >
+                    Create New User
+                </h3>
+
+
+                <form id="userForm">
+
+                    <label for="userName">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="userName"
+                        placeholder="Enter full name"
+                    >
+
+
+                    <label for="userEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="userEmail"
+                        placeholder="Enter email"
+                    >
+
+
+                    <label for="userPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="userPassword"
+                        placeholder="Enter password"
+                    >
+
+
+                    <label for="userRole">
+                        Role
+                    </label>
+
+                    <select id="userRole">
+
+                        <option value="Customer">
+                            Customer
+                        </option>
+
+                        <option value="Warehouse Staff">
+                            Warehouse Staff
+                        </option>
+
+                        <option value="Dispatcher">
+                            Dispatcher
+                        </option>
+
+                        <option value="Admin">
+                            Admin
+                        </option>
+
+                    </select>
+
+
+                    <label for="userStatus">
+                        Account Status
+                    </label>
+
+                    <select id="userStatus">
+
+                        <option value="Active">
+                            Active
+                        </option>
+
+                        <option value="Inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+
+                    <button
+                        type="submit"
+                        id="saveUserButton"
+                    >
+                        CREATE USER
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="cancelUserButton"
+                        class="cancel-button"
+                    >
+                        CANCEL
+                    </button>
+
+
+                    <p id="userMessage"></p>
+
+                </form>
+
+            </div>
+
+
+            <!-- USER CONTROLS -->
+
+            <div class="user-controls">
+
+                <input
+                    type="text"
+                    id="userSearch"
+                    placeholder="Search name or email..."
+                >
+
+
+                <select id="userRoleFilter">
+
+                    <option value="All">
+                        All Roles
+                    </option>
+
+                    <option value="Admin">
+                        Admin
+                    </option>
+
+                    <option value="Dispatcher">
+                        Dispatcher
+                    </option>
+
+                    <option value="Warehouse Staff">
+                        Warehouse Staff
+                    </option>
+
+                    <option value="Customer">
+                        Customer
+                    </option>
+
+                </select>
+
+
+                <select id="userStatusFilter">
+
+                    <option value="All">
+                        All Statuses
+                    </option>
+
+                    <option value="Active">
+                        Active
+                    </option>
+
+                    <option value="Inactive">
+                        Inactive
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- USER TABLE -->
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Name
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="userTableBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- REGISTERED CUSTOMERS -->
+        <section class="user-management" id="registeredCustomersSection">
+            <h2>👤 Registered Customers</h2>
+            <p>Customer accounts registered through the customer portal.</p>
+            <p id="registeredCustomersMessage" role="status" aria-live="polite"></p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registeredCustomerTableBody">
+                        <tr><td colspan="5">Loading registered customers...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- =========================
+             SHIPMENT DASHBOARD
+        ========================== -->
+
+        <div class="dashboard">
+
+            <h2>
+                Shipment Dashboard
+            </h2>
+
+
+            <div class="dashboard-cards">
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        Total Shipments
+                    </h3>
+
+                    <p id="totalShipments">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        Delivered
+                    </h3>
+
+                    <p id="deliveredCount">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        In Transit
+                    </h3>
+
+                    <p id="inTransitCount">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        Pending
+                    </h3>
+
+                    <p id="pendingCount">
+                        0
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        Total Weight
+                    </h3>
+
+                    <p id="totalWeight">
+                        0 kg
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>
+                        Overdue
+                    </h3>
+
+                    <p id="overdueCount">
+                        0
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="shipment-controls">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search tracking, customer or destination..."
+                >
+
+
+                <select id="statusFilter">
+
+                    <option value="All">
+                        All Statuses
+                    </option>
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="In Transit">
+                        In Transit
+                    </option>
+
+                    <option value="Delivered">
+                        Delivered
+                    </option>
+
+                </select>
+
+
+                <select id="sortOption">
+
+                    <option value="default">
+                        Sort: Default
+                    </option>
+
+                    <option value="weightAsc">
+                        Weight: Low to High
+                    </option>
+
+                    <option value="weightDesc">
+                        Weight: High to Low
+                    </option>
+
+                    <option value="customerAsc">
+                        Customer: A-Z
+                    </option>
+
+                    <option value="customerDesc">
+                        Customer: Z-A
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="button"
+                    id="resetFiltersButton"
+                    class="clear-button"
+                >
+                    RESET
+                </button>
+
+
+                <span id="resultCount">
+                    0 shipments
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Tracking
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Destination
+                            </th>
+
+                            <th>
+                                Weight
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Delivery
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="shipmentTableBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             SHIPMENT FORM
+        ========================== -->
+
+        <div
+            class="shipment-form-box"
+            id="shipmentFormSection"
+        >
+
+            <h2>
+                Shipment Management
+            </h2>
+
+
+            <form id="shipmentForm">
+
+                <label for="trackingNumber">
+                    Tracking Number
+                </label>
+
+                <input
+                    type="text"
+                    id="trackingNumber"
+                    placeholder="Example: ULK004"
+                >
+
+
+                <label for="customer">
+                    Customer
+                </label>
+
+                <input
+                    type="text"
+                    id="customer"
+                    placeholder="Customer name"
+                >
+
+
+                <label for="destination">
+                    Destination
+                </label>
+
+                <input
+                    type="text"
+                    id="destination"
+                    placeholder="Example: Cameroon"
+                >
+
+
+                <label for="weight">
+                    Weight (kg)
+                </label>
+
+                <input
+                    type="number"
+                    id="weight"
+                    min="0"
+                    step="0.01"
+                    placeholder="Example: 25"
+                >
+
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select id="status">
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="In Transit">
+                        In Transit
+                    </option>
+
+                    <option value="Delivered">
+                        Delivered
+                    </option>
+
+                </select>
+
+
+                <label for="creationDate">
+                    Creation Date
+                </label>
+
+                <input
+                    type="date"
+                    id="creationDate"
+                >
+
+
+                <label for="estimatedDeliveryDate">
+                    Estimated Delivery Date
+                </label>
+
+                <input
+                    type="date"
+                    id="estimatedDeliveryDate"
+                >
+
+
+                <button
+                    type="submit"
+                    id="addShipmentButton"
+                >
+                    ADD SHIPMENT
+                </button>
+
+
+                <button
+                    type="button"
+                    id="cancelEditButton"
+                    class="cancel-button"
+                >
+                    CANCEL EDIT
+                </button>
+
+
+                <p id="shipmentMessage"></p>
+
+            </form>
+
+        </div>
+
+
+
+        <!-- =========================
+             TRACKING
+        ========================== -->
+
+        <div
+            class="tracking-search-box"
+            id="trackingSection"
+        >
+
+            <h2>
+                📍 Shipment Tracking
+            </h2>
+
+            <p>
+                Track your shipment using the tracking number.
+            </p>
+
+
+            <div class="tracking-search">
+
+                <input
+                    type="text"
+                    id="trackingSearchInput"
+                    placeholder="Example: ULK001"
+                >
+
+
+                <button
+                    type="button"
+                    id="trackShipmentButton"
+                >
+                    TRACK SHIPMENT
+                </button>
+
+            </div>
+
+
+            <p id="trackingSearchMessage"></p>
+
+        </div>
+
+
+
+        <!-- TRACKING RESULT -->
+
+        <div
+            class="tracking-result"
+            id="trackingResult"
+        >
+
+            <h2>
+                Shipment Tracking Details
+            </h2>
+
+
+            <div class="tracking-summary">
+
+                <div>
+
+                    <span>
+                        Tracking Number
+                    </span>
+
+                    <strong id="trackNumber">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Customer
+                    </span>
+
+                    <strong id="trackCustomer">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Destination
+                    </span>
+
+                    <strong id="trackDestination">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Weight
+                    </span>
+
+                    <strong id="trackWeight">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong id="trackStatus">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Estimated Delivery
+                    </span>
+
+                    <strong id="trackDeliveryDate">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="tracking-timeline">
+
+                <div
+                    class="timeline-item"
+                    id="timelineCreated"
+                >
+
+                    <div class="timeline-circle">
+                        ✓
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Shipment Created
+                        </h3>
+
+                        <p>
+                            Shipment registered.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="timeline-line"
+                    id="lineCreated"
+                ></div>
+
+
+                <div
+                    class="timeline-item"
+                    id="timelinePending"
+                >
+
+                    <div class="timeline-circle">
+                        2
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Pending
+                        </h3>
+
+                        <p>
+                            Shipment waiting for processing.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="timeline-line"
+                    id="linePending"
+                ></div>
+
+
+                <div
+                    class="timeline-item"
+                    id="timelineTransit"
+                >
+
+                    <div class="timeline-circle">
+                        3
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            In Transit
+                        </h3>
+
+                        <p>
+                            Shipment is moving.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="timeline-line"
+                    id="lineTransit"
+                ></div>
+
+
+                <div
+                    class="timeline-item"
+                    id="timelineDelivered"
+                >
+
+                    <div class="timeline-circle">
+                        ✓
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Delivered
+                        </h3>
+
+                        <p>
+                            Shipment delivered.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+            </main>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

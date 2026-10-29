@@ -1,0 +1,17 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Local session and cookie files
+ulka-session.txt
+cookies.txt
+second-cookies.txt
+
+# Local database backups
+ulka.db
+*.db-wal
+*.db-shm

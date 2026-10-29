@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your Shipment | ULKA LOGISTICS</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f2cbf9, #e3c1d7);
+      color: #292139;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #762b83;
+      color: white;
+      padding: 22px 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 680px;
+      margin: 35px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 26px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px #00000018;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #762b83;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 18px 0 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #c7a2cf;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid #eb25a6;
+      border-color: #eb25a6;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #eb25a6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #bd1684;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #message {
+      margin-top: 16px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .error {
+      color: #b42318;
+    }
+
+    .success {
+      color: #176b39;
+    }
+
+    .shipment-details {
+      margin-top: 20px;
+    }
+
+    .detail {
+      padding: 13px 0;
+      border-bottom: 1px solid #eee;
+      overflow-wrap: anywhere;
+    }
+
+    .detail strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #762b83;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 13px;
+      border-radius: 20px;
+      background: #f2cbf9;
+      color: #762b83;
+      font-weight: bold;
+    }
+
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .circle {
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      background: #ddd;
+      color: white;
+      display: grid;
+      place-items: center;
+    }
+
+    .step.active {
+      color: #762b83;
+      font-weight: bold;
+    }
+
+    .step.active .circle {
+      background: #eb25a6;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #55415a;
+    }
+
+    a {
+      color: #762b83;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+      }
+
+      .timeline {
+        gap: 3px;
+      }
+
+      .step {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ULKA LOGISTICS</h1>
+    <p>Your shipment, tracked with confidence.</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Track Your Shipment</h2>
+      <p>Enter your tracking number to check your shipment status.</p>
+
+      <form id="trackingForm">
+        <label for="trackingNumber">Tracking Number</label>
+        <input
+          id="trackingNumber"
+          type="text"
+          placeholder="Example: ULK001"
+          required
+          maxlength="50"
+          autocomplete="off"
+        >
+
+        <button id="trackButton" type="submit">
+          Track Shipment
+        </button>
+      </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="result" class="card hidden">
+      <h2>Shipment Information</h2>
+
+      <div class="shipment-details">
+        <div class="detail">
+          <strong>Tracking Number</strong>
+          <span id="resultTracking"></span>
+        </div>
+
+        <div class="detail">
+          <strong>Destination</strong>
+          <span id="resultDestination"></span>
+        </div>
+
+        <div class="detail">
+          <strong>Current Status</strong>
+          <span id="resultStatus" class="status"></span>
+        </div>
+      </div>
+
+      <h3>Delivery Progress</h3>
+
+      <div class="timeline">
+        <div class="step" id="stepPending">
+          <div class="circle">1</div>
+          Pending
+        </div>
+
+        <div class="step" id="stepTransit">
+          <div class="circle">2</div>
+          In Transit
+        </div>
+
+        <div class="step" id="stepDelivered">
+          <div class="circle">3</div>
+          Delivered
+        </div>
+      </div>
+    </section>
+
+    <p><a href="/shipments.html">Staff dashboard</a></p>
+  </main>
+
+  <footer>
+    &copy; 2026 ULKA LOGISTICS. All rights reserved.
+  </footer>
+
+  <script>
+    const form = document.getElementById("trackingForm");
+    const input = document.getElementById("trackingNumber");
+    const button = document.getElementById("trackButton");
+    const message = document.getElementById("message");
+    const result = document.getElementById("result");
+
+    function setMessage(text, type = "") {
+      message.textContent = text;
+      message.className = type;
+    }
+
+    function updateTimeline(status) {
+      const steps = [
+        document.getElementById("stepPending"),
+        document.getElementById("stepTransit"),
+        document.getElementById("stepDelivered")
+      ];
+
+      steps.forEach(step => step.classList.remove("active"));
+
+      if (status === "Pending") {
+        steps[0].classList.add("active");
+      } else if (status === "In Transit") {
+        steps[0].classList.add("active");
+        steps[1].classList.add("active");
+      } else if (status === "Delivered") {
+        steps.forEach(step => step.classList.add("active"));
+      }
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const trackingNumber = input.value.trim();
+
+      if (!trackingNumber) {
+        setMessage("Please enter a tracking number.", "error");
+        result.classList.add("hidden");
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Searching...";
+      result.classList.add("hidden");
+      setMessage("Checking your shipment...");
+
+      try {
+        const response = await fetch(
+          "/api/shipments/" + encodeURIComponent(trackingNumber)
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Shipment not found.");
+        }
+
+        const shipment = data.shipment || data;
+
+        document.getElementById("resultTracking").textContent =
+          shipment.trackingNumber;
+
+        document.getElementById("resultDestination").textContent =
+          shipment.destination;
+
+        document.getElementById("resultStatus").textContent =
+          shipment.status;
+
+        updateTimeline(shipment.status);
+
+        result.classList.remove("hidden");
+        setMessage("Shipment found successfully.", "success");
+
+      } catch (error) {
+        setMessage(
+          error.message === "Failed to fetch"
+            ? "Cannot connect to the server. Please try again."
+            : error.message,
+          "error"
+        );
+      } finally {
+        button.disabled = false;
+        button.textContent = "Track Shipment";
+      }
+    });
+
+    const savedTracking = new URLSearchParams(
+      window.location.search
+    ).get("number");
+
+    if (savedTracking) {
+      input.value = savedTracking;
+      form.requestSubmit();
+    }
+  </script>
+</body>
+</html>

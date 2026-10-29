@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | ULKA LOGISTICS</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="blue-redesign.css">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #eaf2ff, #dbeafe);
+      color: #1d2b42;
+      font-family: Arial, sans-serif;
+    }
+
+    .register-box {
+      position: relative;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 36px 30px;
+      background: #ffffff;
+      border: 1px solid #c7d9f7;
+      border-top: 5px solid #2563eb;
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(16, 38, 74, 0.14);
+      text-align: left;
+    }
+
+    .register-box h1 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #10264a;
+      text-align: center;
+      font-size: 27px;
+      letter-spacing: 0.5px;
+    }
+
+    .register-box h2 {
+      margin-top: 8px;
+      margin-bottom: 26px;
+      color: #2563eb;
+      text-align: center;
+    }
+
+    .register-box label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .register-box input {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      margin: 8px 0 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f8fbff;
+      color: #1d2b42;
+      font-family: inherit;
+      font-size: 15px;
+    }
+
+    .register-box input:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.2);
+      border-color: #2563eb;
+      background: #ffffff;
+    }
+
+    .register-box button {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 46px;
+      margin-top: 8px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(100deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .register-box button:hover {
+      background: linear-gradient(100deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+    }
+
+    .register-box button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+    }
+
+    #message {
+      margin-top: 15px;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .register-box a {
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      .register-box {
+        padding: 28px 22px;
+      }
+
+      .register-box h1 {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-box">
+    <h1>ULKA LOGISTICS</h1>
+    <h2>Create Your Account</h2>
+
+    <form id="registerForm">
+      <label for="fullName">Full Name</label>
+      <input id="fullName" name="fullName"
+             type="text" required minlength="2" maxlength="100">
+
+      <label for="email">Email Address</label>
+      <input id="email" name="email"
+             type="email" required>
+
+      <label for="phone">Phone Number</label>
+      <input id="phone" name="phone" type="tel"
+             autocomplete="tel" placeholder="+971 50 123 4567" required maxlength="30">
+
+
+      <label for="password">Password</label>
+      <input id="password" name="password"
+             type="password" required minlength="12" maxlength="72">
+
+      <button type="submit" id="registerButton">
+        CREATE ACCOUNT
+      </button>
+      <button type="button" id="clearRegisterButton"
+              style="background: #64748b;">
+        CLEAR
+      </button>
+    </form>
+
+    <p id="message" role="status"></p>
+
+    <p>Already registered? <a href="/login-redesign.html">Login here</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("registerForm");
+    document.getElementById("clearRegisterButton").addEventListener("click", function () {
+      form.reset();
+      document.getElementById("message").textContent = "";
+    });
+
+    const message = document.getElementById("message");
+    const button = document.getElementById("registerButton");
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      message.textContent = "";
+      button.disabled = true;
+      button.textContent = "Creating account...";
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const phone = document.getElementById("phone").value.trim();
+
+      try {
+        const response = await fetch("/api/customers/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ fullName, email, password, phone })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Registration failed.");
+        }
+
+        message.style.color = "green";
+        message.textContent =
+          "Account created successfully! You can now log in.";
+        form.reset();
+
+      } catch (error) {
+        message.style.color = "red";
+        message.textContent =
+          error.message || "Unable to connect to the server.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "CREATE ACCOUNT";
+      }
+    });
+  </script>
+
+</body>
+</html>
+```

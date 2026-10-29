@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10264a">
+    <meta name="description" content="ULKA LOGISTICS offers shipment planning tools for sea freight, air freight, cargo management and international shipping.">
+    <title>ULKA LOGISTICS | Global Shipping & Freight Solutions</title>
+    <style>
+        :root {
+            --navy: #10264a;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --light-blue: #eaf2ff;
+            --page: #eaf2ff;
+            --white: #ffffff;
+            --ink: #1d2b42;
+            --muted: #718096;
+            --border: #e2e8f2;
+        }
+
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--page);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        a { color: inherit; }
+        button, input, select { font: inherit; }
+        [hidden] { display: none !important; }
+
+        .container {
+            width: min(1160px, calc(100% - 36px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .nav-wrap {
+            min-height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 14px 0;
+        }
+
+        .brand {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .brand-mark img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 3px;
+            object-fit: contain;
+        }
+
+        .brand-name {
+            display: block;
+            color: var(--navy);
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: .5px;
+            line-height: 1.25;
+        }
+
+        .brand-tagline {
+            color: var(--muted);
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .nav-links a:hover { color: var(--blue); }
+
+        .nav-links .nav-login {
+            color: white;
+            background: var(--blue);
+            padding: 11px 16px;
+            border-radius: 9px;
+        }
+
+        .nav-login:hover { color: white !important; background: var(--blue-dark); }
+
+        .hero {
+            padding: 64px 0 54px;
+            background: linear-gradient(135deg, #eaf2ff 0%, #f8fbff 65%, #dbeafe 100%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            align-items: center;
+            gap: 42px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            color: var(--blue-dark);
+            background: #dbeafe;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            color: var(--navy);
+            font-size: clamp(36px, 5vw, 58px);
+            line-height: 1.08;
+            letter-spacing: -1.7px;
+            margin: 20px 0 18px;
+        }
+
+        .hero-copy {
+            max-width: 650px;
+            color: #52647c;
+            font-size: 17px;
+            margin: 0 0 25px;
+        }
+
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 13px 19px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: var(--blue-dark); color: white; }
+
+        .btn-outline {
+            background: white;
+            color: var(--navy);
+            border-color: #c7d7ef;
+        }
+
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+        .hero-visual {
+            min-height: 315px;
+            border-radius: 24px;
+            padding: 28px;
+            color: white;
+            background: linear-gradient(145deg, #10264a, #1d4ed8);
+            box-shadow: 0 22px 50px rgba(16, 38, 74, .18);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-visual:after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            right: -75px;
+            top: -65px;
+            border: 35px solid rgba(255,255,255,.09);
+            border-radius: 50%;
+        }
+
+        .visual-icon { font-size: 60px; line-height: 1.2; }
+        .visual-title { font-size: 25px; font-weight: 800; line-height: 1.25; }
+        .visual-copy { color: #dbeafe; font-size: 14px; margin-top: 8px; }
+
+        .section { padding: 65px 0; scroll-margin-top: 95px; }
+        .section-white { background: white; }
+
+        .section-heading {
+            max-width: 690px;
+            margin: 0 auto 32px;
+            text-align: center;
+        }
+
+        .section-heading h2 {
+            color: var(--navy);
+            font-size: clamp(27px, 4vw, 37px);
+            line-height: 1.2;
+            margin: 12px 0;
+        }
+
+        .section-heading p { color: var(--muted); margin: 0; }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 5px 18px rgba(16,38,74,.04);
+        }
+
+        .service-icon {
+            width: 51px;
+            height: 51px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--light-blue);
+            font-size: 26px;
+            margin-bottom: 17px;
+        }
+
+        .service-card h3 { color: var(--navy); margin: 0 0 8px; font-size: 19px; }
+        .service-card p { color: var(--muted); font-size: 14px; margin: 0; }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .step-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .step-number {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--blue);
+            color: white;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .step-card h3 { color: var(--navy); font-size: 17px; margin: 0 0 7px; }
+        .step-card p { color: var(--muted); font-size: 13px; margin: 0; }
+
+        .calculator-section { padding: 65px 0; scroll-margin-top: 85px; }
+        .calculator-shell {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(16,38,74,.06);
+        }
+
+        .calculator-heading { text-align: center; margin-bottom: 25px; }
+        .calculator-heading h2 { color: var(--navy); font-size: clamp(27px, 4vw, 36px); margin: 10px 0; }
+        .calculator-heading p { color: var(--muted); margin: 0; }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 22px 0;
+        }
+
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--blue);
+            color: white;
+        }
+
+        button:hover { background: var(--blue-dark); }
+        button.secondary { background: #1e40af; }
+        button.secondary:hover { background: #1e3a8a; }
+
+        .tab[aria-pressed="true"] {
+            background: var(--blue-dark);
+            outline: 3px solid #dbeafe;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 { color: var(--navy); margin-top: 0; }
+        .hint { color: var(--muted); font-size: 14px; }
+
+        .table-wrap { overflow-x: auto; margin-top: 18px; }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            background: #f8fbff;
+        }
+
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: var(--light-blue); font-size: 13px; }
+
+        input, select {
+            width: 100%;
+            min-width: 65px;
+            padding: 10px;
+            border: 1px solid #d7e1ef;
+            border-radius: 7px;
+            background: white;
+            color: var(--ink);
+        }
+
+        td input, td select { min-width: 75px; }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .field-grid label, .rate-box label { display: block; font-weight: 700; font-size: 14px; }
+        .field-grid input, .rate-box input { margin-top: 7px; }
+
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+        .calculator-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 18px;
+            box-shadow: 0 5px 16px rgba(16,38,74,.06);
+            min-width: 0;
+        }
+
+        .result-label {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .result-value {
+            margin-top: 12px;
+            font-size: clamp(23px, 3vw, 32px);
+            line-height: 1.2;
+            font-weight: 800;
+            color: var(--navy);
+            overflow-wrap: anywhere;
+        }
+
+        .result-note { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+        .cbm-total, .chargeable { background: var(--light-blue); border: 2px solid #93c5fd; }
+        .cbm-total .result-value, .chargeable .result-value { color: var(--blue-dark); }
+        .estimated-cost { background: #dbeafe; border: 2px solid #93c5fd; }
+        .estimated-cost .result-label, .estimated-cost .result-value, .estimated-cost .result-note { color: var(--navy); }
+
+        .formula {
+            background: #f8fbff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 18px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .status { font-size: 13px; margin-top: 12px; }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .about-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .about-card h2 { color: var(--navy); line-height: 1.25; }
+        .about-card p { color: var(--muted); font-size: 15px; }
+
+        .about-points { display: grid; gap: 12px; margin-top: 20px; }
+        .about-point { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+        .about-point span { color: var(--blue); font-weight: 900; }
+
+        .tracking-card {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 35px;
+            text-align: center;
+            border-radius: 20px;
+            background: var(--navy);
+            color: white;
+        }
+
+        .tracking-card h2 { font-size: clamp(27px, 4vw, 36px); margin: 10px 0; }
+        .tracking-card p { color: #d5e4fa; margin: 0 auto 22px; max-width: 620px; }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .contact-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .contact-card h3 { color: var(--navy); margin: 8px 0; }
+        .contact-card p { color: var(--muted); font-size: 14px; margin: 0; }
+
+        .site-footer { background: var(--navy); color: white; padding: 30px 0; }
+        .footer-wrap { display: flex; justify-content: space-between; gap: 18px; align-items: center; flex-wrap: wrap; }
+        .site-footer p { color: #c8d7ed; font-size: 13px; margin: 5px 0; }
+        .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+        .footer-links a { color: white; font-size: 13px; text-decoration: none; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .nav-wrap { align-items: flex-start; flex-direction: column; gap: 14px; }
+            .nav-links { justify-content: flex-start; gap: 13px; }
+            .hero-grid { grid-template-columns: 1fr; }
+            .hero-visual { min-height: 240px; }
+            .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 600px) {
+            .container { width: min(100% - 24px, 1160px); }
+            .nav-links { gap: 10px 14px; }
+            .nav-links a { font-size: 12px; }
+            .hero { padding: 43px 0; }
+            .hero-copy { font-size: 15px; }
+            .hero-visual { min-height: 220px; padding: 23px; }
+            .section, .calculator-section { padding: 43px 0; }
+            .services-grid, .steps-grid, .about-grid, .contact-grid { grid-template-columns: 1fr; }
+            .calculator-shell { padding: 13px; }
+            .panel { padding: 15px; }
+            .calculator-results { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+            .result-card { padding: 12px; }
+            .result-value { font-size: 22px; }
+            .tracking-card { padding: 25px 18px; }
+            .brand-name { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <div class="container nav-wrap">
+        <a class="brand" href="#home" aria-label="ULKA LOGISTICS home">
+            <span class="brand-mark"><img src="/ulka.jpeg" alt="ULKA LOGISTICS logo"></span>
+            <span>
+                <span class="brand-name">ULKA LOGISTICS</span>
+                <span class="brand-tagline">YOUR CARGO. OUR COMMITMENT.</span>
+            </span>
+        </a>
+        <nav class="nav-links" aria-label="Main navigation">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#calculator">Shipping Calculator</a>
+            <a href="#tracking">Track Shipment</a>
+            <a href="#about">About Us</a>
+            <a href="#contact">Contact</a>
+            <a class="nav-login" href="/login-redesign.html">Account Login</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="hero" id="home">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">Logistics made clearer</span>
+                <h1>Connecting Your Business to the World</h1>
+                <p class="hero-copy">
+                    Plan your shipments with ULKA LOGISTICS. Explore freight services,
+                    estimate sea-freight volume and air-freight charges, and access your account.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#calculator">Calculate Shipping</a>
+                    <a class="btn btn-outline" href="#tracking">Track a Shipment</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-icon" aria-hidden="true">✈　🚢</div>
+                <div>
+                    <div class="visual-title">Your shipment journey starts here.</div>
+                    <div class="visual-copy">Air freight · Sea freight · Cargo coordination</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-white" id="services">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">What we do</span>
+                <h2>Logistics Services</h2>
+                <p>Explore the service areas relevant to your cargo and shipping needs.</p>
+            </div>
+            <div class="services-grid">
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">✈️</div>
+                    <h3>Air Freight</h3>
+                    <p>Plan air cargo using parcel dimensions, actual weight, quantity and estimated chargeable weight.</p>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">🚢</div>
+                    <h3>Sea Freight</h3>
+                    <p>Calculate cargo volume in cubic metres (CBM) for shipment planning.</p>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">🌍</div>
+                    <h3>Import &amp; Export</h3>
+                    <p>Plan international cargo movements and organise the information needed for shipping coordination.</p>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">📦</div>
+                    <h3>Cargo Management</h3>
+                    <p>Keep shipment information organised and access supported shipment records through your account.</p>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">🚚</div>
+                    <h3>Delivery Coordination</h3>
+                    <p>Plan cargo delivery requirements and coordinate the information needed for onward transport.</p>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon" aria-hidden="true">🧮</div>
+                    <h3>Shipping Estimates</h3>
+                    <p>Use our online tools to calculate parcel volume, chargeable air weight and indicative air costs.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">Getting started</span>
+                <h2>Plan Your Shipment in Four Steps</h2>
+                <p>Use these tools to prepare your cargo details before confirming a shipment.</p>
+            </div>
+            <div class="steps-grid">
+                <article class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Prepare Details</h3>
+                    <p>Measure each parcel and record its dimensions, weight and quantity.</p>
+                </article>
+                <article class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Calculate</h3>
+                    <p>Select the sea or air calculator and enter your cargo information.</p>
+                </article>
+                <article class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Review Estimate</h3>
+                    <p>Review the calculated volume, chargeable weight or indicative air cost.</p>
+                </article>
+                <article class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>Access Your Account</h3>
+                    <p>Log in to access the existing account and shipment tools available to your role.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="calculator-section section-white" id="calculator">
+        <div class="container">
+            <div class="calculator-shell">
+                <div class="calculator-heading">
+                    <span class="eyebrow">Free planning tools</span>
+                    <h2>Shipping Calculator</h2>
+                    <p>Calculate sea cargo volume or estimate air-freight charges in one place.</p>
+                    <p class="hint">Estimates only. Calculator entries are not saved to shipment records.</p>
+                </div>
+
+                <nav class="tabs" aria-label="Calculator type">
+                    <button type="button" class="tab" data-tab="sea" aria-pressed="true">Sea CBM Calculator</button>
+                    <button type="button" class="tab secondary" data-tab="air" aria-pressed="false">Air Weight Calculator</button>
+                </nav>
+
+                <section id="seaPanel">
+            <div class="panel">
+                <h3>Enter parcel dimensions</h3>
+                <p class="hint">Enter the dimensions for each parcel size, select cm or m, and specify the quantity.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Length</th><th>Width</th><th>Height</th>
+                            <th>Unit</th><th>Quantity</th>
+                            <th>CBM per parcel</th><th>Line total CBM</th><th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="cbmRows"></tbody>
+                    </table>
+                </div>
+                <div class="actions">
+                    <button type="button" id="addRow">+ Add parcel size</button>
+                    <button type="button" class="secondary" id="resetSea">Reset calculator</button>
+                </div>
+
+                <div class="calculator-results">
+                    <article class="result-card">
+                        <div class="result-label">Total parcel quantity</div>
+                        <div class="result-value" id="parcelCount">0</div>
+                        <div class="result-note">From valid parcel rows</div>
+                    </article>
+                    <article class="result-card cbm-total">
+                        <div class="result-label">Total shipment volume</div>
+                        <div class="result-value" id="totalCBM">0.000000</div>
+                        <div class="result-note">Cubic metres (CBM)</div>
+                    </article>
+                </div>
+
+                <div class="formula">
+                    <strong>CBM formula</strong><br>
+                    Dimensions in centimetres: length × width × height ÷ 1,000,000.<br>
+                    Dimensions in metres: length × width × height.<br>
+                    Example: 60 × 40 × 50 cm = 0.120000 CBM per parcel.
+                </div>
+            </div>
+        </section>
+
+                <section id="airPanel" hidden>
+            <div class="panel">
+                <h3>Air-freight parcel details</h3>
+                <p class="hint">Enter dimensions in centimetres, actual weight per parcel in kilograms, and quantity.</p>
+                <div class="field-grid">
+                    <label>Length (cm)
+                        <input id="airLength" type="number" min="0" step="any" value="60">
+                    </label>
+                    <label>Width (cm)
+                        <input id="airWidth" type="number" min="0" step="any" value="40">
+                    </label>
+                    <label>Height (cm)
+                        <input id="airHeight" type="number" min="0" step="any" value="50">
+                    </label>
+                    <label>Actual weight per parcel (kg)
+                        <input id="airActual" type="number" min="0" step="any" value="10">
+                    </label>
+                    <label>Quantity
+                        <input id="airQuantity" type="number" min="1" step="1" value="1">
+                    </label>
+                </div>
+            </div>
+
+            <div class="calculator-results">
+                <article class="result-card">
+                    <div class="result-label">Volumetric weight per parcel</div>
+                    <div class="result-value" id="volumetricPerParcel">20.00 kg</div>
+                    <div class="result-note">Based on one parcel</div>
+                </article>
+                <article class="result-card">
+                    <div class="result-label">Total actual weight</div>
+                    <div class="result-value" id="totalActual">10.00 kg</div>
+                    <div class="result-note">Actual weight × quantity</div>
+                </article>
+                <article class="result-card">
+                    <div class="result-label">Total volumetric weight</div>
+                    <div class="result-value" id="totalVolumetric">20.00 kg</div>
+                    <div class="result-note">Volumetric weight × quantity</div>
+                </article>
+                <article class="result-card chargeable">
+                    <div class="result-label">Chargeable weight</div>
+                    <div class="result-value" id="chargeableWeight">20.00 kg</div>
+                    <div class="result-note">Higher of total actual and volumetric weight</div>
+                </article>
+                <article class="result-card estimated-cost">
+                    <div class="result-label">Estimated shipping cost</div>
+                    <div class="result-value" id="estimatedCost">AED 900.00</div>
+                    <div class="result-note">Rate: AED <span id="rateLabel">45.00</span>/kg</div>
+                </article>
+            </div>
+
+            <div class="panel">
+                <h3>Calculation method</h3>
+                <div class="formula">
+                    <strong>Volumetric weight per parcel</strong> = length × width × height ÷ 6000.<br>
+                    <strong>Total actual weight</strong> = actual weight per parcel × quantity.<br>
+                    <strong>Chargeable weight</strong> = higher of total actual and total volumetric weight.<br>
+                    <strong>Estimated cost</strong> = chargeable weight × shared air rate.
+                </div>
+                <p class="hint">The rate is managed by an administrator in the dashboard. Carrier rounding, minimum charges, surcharges and other fees may apply. This is an estimate only.</p>
+                <p id="rateStatus" class="status" role="status" aria-live="polite">Loading shared air rate…</p>
+            </div>
+        </section>
+
+                <div class="panel" style="text-align:center">
+                    <h3>Connection Status</h3>
+                    <p class="hint">Check whether this website can communicate with the ULKA server.</p>
+                    <button type="button" id="testServer">Test Server</button>
+                    <p id="serverMessage" class="status" role="status" aria-live="polite"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="about">
+        <div class="container about-grid">
+            <div>
+                <span class="eyebrow">About our platform</span>
+                <h2 style="color:var(--navy);font-size:clamp(29px,4vw,40px);line-height:1.2">Practical tools for shipment planning.</h2>
+                <p>ULKA LOGISTICS brings shipping calculations and account access together in one convenient place. The website helps users organise parcel details and understand estimated air and sea cargo measurements before making shipping arrangements.</p>
+                <p class="hint">Company history, verified operating locations, licences and confirmed service coverage can be added when the official details are available.</p>
+                <a class="btn btn-primary" href="#calculator">Try the Calculator</a>
+            </div>
+            <div class="about-card">
+                <h2>Our Platform Priorities</h2>
+                <div class="about-points">
+                    <div class="about-point"><span>✓</span><div><strong>Clear calculations</strong><br>Review parcel dimensions and shipment estimates.</div></div>
+                    <div class="about-point"><span>✓</span><div><strong>Convenient access</strong><br>Use a single public page to reach the available tools.</div></div>
+                    <div class="about-point"><span>✓</span><div><strong>Account-based features</strong><br>Access existing shipment features through your login.</div></div>
+                    <div class="about-point"><span>✓</span><div><strong>Transparent estimates</strong><br>Understand that final carrier charges may differ.</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="tracking">
+        <div class="container">
+            <div class="tracking-card">
+                <span class="eyebrow">Shipment access</span>
+                <h2>Need to Check a Shipment?</h2>
+                <p>Log in to your ULKA LOGISTICS account to access the shipment and tracking features available to your account role.</p>
+                <a class="btn btn-primary" href="/login-redesign.html">Login to Track Shipments</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-white" id="contact">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">Contact &amp; support</span>
+                <h2>Connect with ULKA LOGISTICS</h2>
+                <p>Use the available account portal, or add verified business contact details here.</p>
+            </div>
+            <div class="contact-grid">
+                <article class="contact-card">
+                    <div class="service-icon" aria-hidden="true">🔐</div>
+                    <h3>Account Support</h3>
+                    <p>Access your account or use the existing login page.</p>
+                    <p><a href="/login-redesign.html">Open account login</a></p>
+                </article>
+                <article class="contact-card">
+                    <div class="service-icon" aria-hidden="true">📦</div>
+                    <h3>Shipment Enquiries</h3>
+                    <p>Prepare your cargo dimensions and shipment information using the calculator above.</p>
+                </article>
+                <article class="contact-card">
+                    <div class="service-icon" aria-hidden="true">✉️</div>
+                    <h3>Business Contact</h3>
+                    <p>Official email, telephone, WhatsApp and business address can be published here after confirmation.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-wrap">
+        <div>
+            <strong>ULKA LOGISTICS</strong>
+            <p>Your cargo. Our commitment.</p>
+            <p>© <span id="copyrightYear">2026</span> ULKA LOGISTICS. All rights reserved.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#calculator">Calculator</a>
+            <a href="#tracking">Tracking</a>
+            <a href="/login-redesign.html">Login</a>
+        </nav>
+    </div>
+</footer>
+
+<script>
+"use strict";
+
+let airRateAEDPerKg = 45;
+const volumetricDivisor = 6000;
+let nextRowId = 0;
+
+const $ = id => document.getElementById(id);
+const numberValue = id => Number($(id).value);
+
+function createCBMRow() {
+    const id = ++nextRowId;
+    const tr = document.createElement("tr");
+    tr.dataset.cbmRow = String(id);
+    tr.innerHTML = `
+        <td><input type="number" min="0" step="any" value="0" aria-label="Length"></td>
+        <td><input type="number" min="0" step="any" value="0" aria-label="Width"></td>
+        <td><input type="number" min="0" step="any" value="0" aria-label="Height"></td>
+        <td><select aria-label="Dimension unit"><option value="cm">cm</option><option value="m">m</option></select></td>
+        <td><input type="number" min="1" step="1" value="1" aria-label="Quantity"></td>
+        <td><span data-single>0.000000</span></td>
+        <td><strong data-line>0.000000</strong></td>
+        <td><button type="button" class="secondary" data-remove>Remove</button></td>
+    `;
+    return tr;
+}
+
+function calculateCBM() {
+    let totalCBM = 0;
+    let totalQuantity = 0;
+
+    document.querySelectorAll("[data-cbm-row]").forEach(row => {
+        const inputs = row.querySelectorAll('input[type="number"]');
+        const length = Number(inputs[0].value);
+        const width = Number(inputs[1].value);
+        const height = Number(inputs[2].value);
+        const quantity = Number(inputs[3].value);
+        const unit = row.querySelector("select").value;
+
+        const valid = [length, width, height, quantity].every(Number.isFinite)
+            && length > 0 && width > 0 && height > 0
+            && Number.isInteger(quantity) && quantity >= 1;
+
+        let singleCBM = 0;
+        let lineTotal = 0;
+
+        if (valid) {
+            singleCBM = unit === "cm"
+                ? (length * width * height) / 1000000
+                : length * width * height;
+            lineTotal = singleCBM * quantity;
+            totalCBM += lineTotal;
+            totalQuantity += quantity;
+        }
+
+        row.querySelector("[data-single]").textContent = singleCBM.toFixed(6);
+        row.querySelector("[data-line]").textContent = lineTotal.toFixed(6);
+    });
+
+    $("parcelCount").textContent = String(totalQuantity);
+    $("totalCBM").textContent = totalCBM.toFixed(6);
+}
+
+function calculateAirWeight() {
+    const length = numberValue("airLength");
+    const width = numberValue("airWidth");
+    const height = numberValue("airHeight");
+    const actualPerParcel = numberValue("airActual");
+    const quantity = numberValue("airQuantity");
+
+    const valid = [length, width, height, actualPerParcel, quantity].every(Number.isFinite)
+        && length > 0 && width > 0 && height > 0
+        && actualPerParcel >= 0 && Number.isInteger(quantity) && quantity >= 1;
+
+    const volumetricPerParcel = valid
+        ? length * width * height / volumetricDivisor : 0;
+    const totalActual = valid ? actualPerParcel * quantity : 0;
+    const totalVolumetric = valid ? volumetricPerParcel * quantity : 0;
+    const chargeable = valid ? Math.max(totalActual, totalVolumetric) : 0;
+    const cost = chargeable * airRateAEDPerKg;
+
+    $("volumetricPerParcel").textContent = volumetricPerParcel.toFixed(2) + " kg";
+    $("totalActual").textContent = totalActual.toFixed(2) + " kg";
+    $("totalVolumetric").textContent = totalVolumetric.toFixed(2) + " kg";
+    $("chargeableWeight").textContent = chargeable.toFixed(2) + " kg";
+    $("estimatedCost").textContent = "AED " + cost.toLocaleString("en-AE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+async function loadAirRate() {
+    const status = $("rateStatus");
+    try {
+        const response = await fetch("/api/air-rate");
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        const rate = Number(data.rateAEDPerKg);
+        if (!Number.isFinite(rate) || rate <= 0) {
+            throw new Error("Invalid rate returned by server");
+        }
+
+        airRateAEDPerKg = rate;
+        $("rateLabel").textContent = rate.toFixed(2);
+        status.textContent = "Shared air rate loaded from the server.";
+    } catch (error) {
+        status.textContent = "Could not load the shared rate. The displayed estimate uses the default AED 45/kg rate; please verify the rate before relying on the estimate.";
+    }
+    calculateAirWeight();
+}
+
+$("cbmRows").appendChild(createCBMRow());
+calculateCBM();
+calculateAirWeight();
+
+$("addRow").addEventListener("click", () => {
+    $("cbmRows").appendChild(createCBMRow());
+    calculateCBM();
+});
+
+$("resetSea").addEventListener("click", () => {
+    $("cbmRows").innerHTML = "";
+    $("cbmRows").appendChild(createCBMRow());
+    calculateCBM();
+});
+
+$("cbmRows").addEventListener("input", calculateCBM);
+$("cbmRows").addEventListener("change", calculateCBM);
+$("cbmRows").addEventListener("click", event => {
+    const button = event.target.closest("[data-remove]");
+    if (!button) return;
+
+    const rows = $("cbmRows");
+    if (rows.querySelectorAll("[data-cbm-row]").length > 1) {
+        button.closest("[data-cbm-row]").remove();
+    } else {
+        const row = button.closest("[data-cbm-row]");
+        row.querySelectorAll('input[type="number"]').forEach((input, index) => {
+            input.value = index === 3 ? "1" : "0";
+        });
+        row.querySelector("select").value = "cm";
+    }
+    calculateCBM();
+});
+
+["airLength", "airWidth", "airHeight", "airActual", "airQuantity"].forEach(id => {
+    $(id).addEventListener("input", calculateAirWeight);
+});
+
+document.querySelectorAll("[data-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+        const selected = button.dataset.tab;
+        $("seaPanel").hidden = selected !== "sea";
+        $("airPanel").hidden = selected !== "air";
+
+        document.querySelectorAll("[data-tab]").forEach(tab => {
+            const active = tab.dataset.tab === selected;
+            tab.setAttribute("aria-pressed", String(active));
+            tab.classList.toggle("secondary", !active);
+        });
+
+        if (selected === "air") loadAirRate();
+    });
+});
+
+$("testServer").addEventListener("click", async () => {
+    const message = $("serverMessage");
+    message.textContent = "Checking server…";
+    try {
+        const response = await fetch("/api/test");
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        message.textContent = data.message || "Server connection successful.";
+    } catch (error) {
+        message.textContent = "Could not connect to the server. Check that the ULKA server is running.";
+    }
+});
+
+loadAirRate();
+</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ULKA LOGISTICS | Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: #f8f2f8;
+            color: #333;
+        }
+
+        .container { max-width: 1250px; margin: auto; }
+
+        header {
+            background: linear-gradient(135deg, #e3c1d7, #f2cbf9);
+            border: 2px solid #eb25a6;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        h1 { color: #76245c; margin-top: 0; }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid #e3c1d7;
+        }
+
+        .card h3 { margin: 0 0 12px; font-size: 14px; }
+        .number { font-size: 28px; font-weight: bold; color: #b91980; }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #d3a4ca;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        input { flex: 1; min-width: 180px; }
+
+        button {
+            background: #eb25a6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover { background: #b91980; }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+
+        .delete-button { background: #b42332; }
+        .delete-button:hover { background: #861b26; }
+
+        .table-wrap {
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e3c1d7;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th { background: #f2cbf9; color: #76245c; }
+        td select { max-width: 130px; }
+        td button { margin: 3px; }
+
+        #message { min-height: 22px; }
+
+        .pagination {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 18px;
+        }
+
+        a { color: #b91980; }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <header>
+        <h1>ULKA LOGISTICS</h1>
+        <p>Shipment Management Dashboard</p>
+        <p id="customerWelcome">Checking login...</p>
+        <button id="logoutButton" type="button">Logout</button>
+        <a href="/add-shipment.html">+ Register a shipment</a>
+    </header>
+
+    <section class="cards">
+        <div class="card">
+            <h3>Total Shipments</h3>
+            <div class="number" id="totalCount">—</div>
+        </div>
+        <div class="card">
+            <h3>Pending</h3>
+            <div class="number" id="pendingCount">—</div>
+        </div>
+        <div class="card">
+            <h3>In Transit</h3>
+            <div class="number" id="transitCount">—</div>
+        </div>
+        <div class="card">
+            <h3>Delivered</h3>
+            <div class="number" id="deliveredCount">—</div>
+        </div>
+    </section>
+
+    <div class="controls">
+        <input id="searchInput"
+               placeholder="Search customer or destination">
+
+        <select id="statusFilter">
+            <option value="">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Delivered">Delivered</option>
+        </select>
+
+        <button id="searchButton">Search</button>
+        <button id="refreshButton">Refresh</button>
+    </div>
+
+    <p id="message" role="status"></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tracking Number</th>
+                    <th>Customer</th>
+                    <th>Destination</th>
+                    <th>Weight (kg)</th>
+                    <th>Current Status</th>
+                    <th>New Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="shipmentRows"></tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <button id="previousButton">Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextButton">Next</button>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    const pageSize = 10;
+    let totalPages = 1;
+
+    const rows = document.getElementById("shipmentRows");
+    const message = document.getElementById("message");
+
+    async function requestJSON(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Request failed.");
+        }
+
+        return data;
+    }
+
+    async function loadSummary() {
+        try {
+            const [all, pending, transit, delivered] =
+                await Promise.all([
+                    requestJSON("/api/shipments?limit=1"),
+                    requestJSON("/api/shipments/status/Pending"),
+                    requestJSON("/api/shipments/status/In%20Transit"),
+                    requestJSON("/api/shipments/status/Delivered")
+                ]);
+
+            document.getElementById("totalCount").textContent = all.total;
+            document.getElementById("pendingCount").textContent = pending.total;
+            document.getElementById("transitCount").textContent = transit.total;
+            document.getElementById("deliveredCount").textContent = delivered.total;
+        } catch (error) {
+            message.textContent = "Summary error: " + error.message;
+        }
+    }
+
+    async function loadShipments() {
+        message.textContent = "Loading shipments...";
+
+        try {
+            const term = document.getElementById("searchInput").value.trim();
+            const status = document.getElementById("statusFilter").value;
+
+            let url;
+
+            if (term) {
+                url = "/api/search?term=" + encodeURIComponent(term);
+            } else if (status) {
+                url = "/api/shipments/status/" + encodeURIComponent(status);
+            } else {
+                url = "/api/shipments?page=" + currentPage +
+                      "&limit=" + pageSize;
+            }
+
+            const data = await requestJSON(url);
+            let shipments = data.shipments || [];
+
+            if (term || status) {
+                totalPages = 1;
+            } else {
+                totalPages = Math.max(1, data.totalPages || 1);
+            }
+
+            rows.replaceChildren();
+
+            if (shipments.length === 0) {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 8;
+                td.textContent = "No shipments found.";
+                tr.appendChild(td);
+                rows.appendChild(tr);
+            }
+
+            shipments.forEach(shipment => {
+                const tr = document.createElement("tr");
+
+                [
+                    shipment.id,
+                    shipment.trackingNumber,
+                    shipment.customer,
+                    shipment.destination,
+                    shipment.weight,
+                    shipment.status
+                ].forEach(value => {
+                    const td = document.createElement("td");
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+
+                // Status selection
+                const statusCell = document.createElement("td");
+                const select = document.createElement("select");
+
+                ["Pending", "In Transit", "Delivered"].forEach(value => {
+                    const option = document.createElement("option");
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
+
+                select.value = shipment.status;
+                statusCell.appendChild(select);
+                tr.appendChild(statusCell);
+
+                // Action buttons
+                const actions = document.createElement("td");
+
+                const updateButton = document.createElement("button");
+                updateButton.textContent = "Update";
+                updateButton.addEventListener("click", async () => {
+                    updateButton.disabled = true;
+
+                    try {
+                        await requestJSON(
+                            "/api/shipments/" +
+                            encodeURIComponent(shipment.trackingNumber) +
+                            "/status",
+                            {
+                                method: "PATCH",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ status: select.value })
+                            }
+                        );
+
+                        message.textContent =
+                            shipment.trackingNumber + " status updated.";
+
+                        await loadSummary();
+                        await loadShipments();
+                    } catch (error) {
+                        message.textContent = error.message;
+                        updateButton.disabled = false;
+                    }
+                });
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.className = "delete-button";
+
+                deleteButton.addEventListener("click", async () => {
+                    if (!confirm(
+                        "Permanently delete shipment " +
+                        shipment.trackingNumber + "?"
+                    )) {
+                        return;
+                    }
+
+                    deleteButton.disabled = true;
+
+                    try {
+                        await requestJSON(
+                            "/api/shipments/" +
+                            encodeURIComponent(shipment.trackingNumber),
+                            { method: "DELETE" }
+                        );
+
+                        message.textContent =
+                            shipment.trackingNumber + " deleted.";
+
+                        await loadSummary();
+                        await loadShipments();
+                    } catch (error) {
+                        message.textContent = error.message;
+                        deleteButton.disabled = false;
+                    }
+                });
+
+                actions.append(updateButton, deleteButton);
+                tr.appendChild(actions);
+                rows.appendChild(tr);
+            });
+
+            document.getElementById("pageInfo").textContent =
+                "Page " + currentPage + " of " + totalPages;
+
+            document.getElementById("previousButton").disabled =
+                currentPage <= 1;
+
+            document.getElementById("nextButton").disabled =
+                currentPage >= totalPages;
+
+            if (!message.textContent.startsWith("Summary error:")) {
+                message.textContent = shipments.length + " shipment(s) displayed.";
+            }
+
+        } catch (error) {
+            message.textContent = "Loading error: " + error.message;
+        }
+    }
+
+    document.getElementById("searchButton").addEventListener("click", () => {
+        currentPage = 1;
+        loadShipments();
+    });
+
+    document.getElementById("statusFilter").addEventListener("change", () => {
+        currentPage = 1;
+        loadShipments();
+    });
+
+    document.getElementById("refreshButton").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("statusFilter").value = "";
+        currentPage = 1;
+        loadSummary();
+        loadShipments();
+    });
+
+    document.getElementById("previousButton").addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadShipments();
+        }
+    });
+
+    document.getElementById("nextButton").addEventListener("click", () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadShipments();
+        }
+    });
+
+    async function checkCustomerSession() {
+        try {
+            const response = await fetch("/api/customers/me", {
+                credentials: "same-origin"
+            });
+
+            if (response.status === 401) {
+                window.location.replace("/login.html");
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("Unable to verify your login.");
+            }
+
+            const data = await response.json();
+
+            document.getElementById("customerWelcome").textContent =
+                "Welcome, " + data.customer.fullName + "!";
+
+            await loadSummary();
+            await loadShipments();
+        } catch (error) {
+            message.textContent = error.message;
+        }
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+        try {
+            await requestJSON("/api/customers/logout", {
+                method: "POST",
+                credentials: "same-origin"
+            });
+
+            window.location.replace("/login.html");
+        } catch (error) {
+            message.textContent = "Logout error: " + error.message;
+        }
+    });
+
+    checkCustomerSession();
+</script>
+</body>
+</html>

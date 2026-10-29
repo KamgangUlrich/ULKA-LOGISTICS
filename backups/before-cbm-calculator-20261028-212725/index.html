@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ULKA LOGISTICS</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #e3c1d7;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .box {
+            max-width: 600px;
+            margin: 50px auto;
+            background: rgb(242, 203, 249);
+            border: 2px solid #1601ff;
+            border-radius: 15px;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #eb25a6;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        button {
+            background: #ff02af;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #c90088;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="box">
+
+        <h1>ULKA LOGISTICS</h1>
+
+        <h2>Transport Management System</h2>
+
+        <p>
+            Welcome to the ULKA LOGISTICS backend system.
+        </p>
+
+        <button onclick="testServer()">
+            Test Server
+        </button>
+
+        <p id="message"></p>
+
+    </div>
+
+
+    <script>
+
+        async function testServer() {
+
+            const response =
+                await fetch("/api/test");
+
+            const data =
+                await response.json();
+
+            document.getElementById("message")
+                .textContent = data.message;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

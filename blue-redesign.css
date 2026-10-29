@@ -1,0 +1,427 @@
+/* ULKA LOGISTICS — Blue redesign for the existing working application */
+/* Original application functions and HTML IDs are intentionally preserved. */
+
+:root {
+    --ulka-navy: #10264a;
+    --ulka-blue: #2563eb;
+    --ulka-light-blue: #eaf2ff;
+    --ulka-background: #f3f6fb;
+    --ulka-border: #e2e8f2;
+    --ulka-text: #1d2b42;
+    --ulka-muted: #718096;
+}
+
+body {
+    background: var(--ulka-background);
+    color: var(--ulka-text);
+}
+
+.main-application {
+    background: var(--ulka-background);
+    min-height: 100vh;
+}
+
+.app-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--ulka-border);
+    padding: 20px 26px;
+}
+
+.app-header h1 {
+    color: var(--ulka-navy);
+    letter-spacing: 0.4px;
+}
+
+.app-header p {
+    color: var(--ulka-muted);
+}
+
+.role-banner {
+    background: var(--ulka-light-blue);
+    color: var(--ulka-navy);
+    border-color: #d5e4ff;
+    margin: 12px 20px;
+    border-radius: 10px;
+}
+
+.app-shell {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-height: calc(100vh - 120px);
+    background: var(--ulka-background);
+}
+
+.app-sidebar {
+    background: linear-gradient(180deg, #102b52, #0b1f3a);
+    color: #ffffff;
+    border-right: 0;
+    box-shadow: 4px 0 20px rgba(11, 31, 58, 0.08);
+}
+
+.sidebar-brand {
+    border-bottom-color: #304363;
+}
+
+.sidebar-brand h2,
+.sidebar-brand p {
+    color: #ffffff;
+}
+
+.sidebar-label {
+    color: #a8bddc;
+}
+
+.sidebar-link,
+.sidebar-menu-toggle,
+.sidebar-sub-link {
+    border: 1px solid transparent;
+    border-radius: 9px;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.sidebar-link:hover,
+.sidebar-menu-toggle:hover,
+.sidebar-sub-link:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+
+.sidebar-link.active,
+.sidebar-sub-link.active,
+.sidebar-menu-toggle.active {
+    background: linear-gradient(100deg, #2e73ee, #215bd0);
+    color: #ffffff;
+    box-shadow: 0 5px 14px rgba(20, 82, 190, 0.20);
+}
+
+.app-content {
+    min-width: 0;
+    background: var(--ulka-background);
+    padding: 24px;
+}
+
+.dashboard h2 {
+    color: var(--ulka-navy);
+    margin-bottom: 20px;
+}
+
+.dashboard-cards {
+    gap: 16px;
+}
+
+.dashboard-card {
+    background: linear-gradient(145deg, #ffffff, #f5f8ff);
+    border: 1px solid var(--ulka-border);
+    border-top: 3px solid var(--ulka-blue);
+    border-radius: 13px;
+    box-shadow: 0 4px 16px rgba(21, 43, 77, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(21, 43, 77, 0.09);
+}
+
+.dashboard-card h3 {
+    color: var(--ulka-muted);
+}
+
+.dashboard-card p {
+    color: var(--ulka-navy);
+    font-size: 27px;
+    font-weight: 750;
+}
+
+.shipment-controls input,
+.shipment-controls select,
+.app-content input,
+.app-content select,
+.app-content textarea {
+    border-color: #d7e1ef;
+    border-radius: 8px;
+}
+
+.shipment-controls input:focus,
+.shipment-controls select:focus,
+.app-content input:focus,
+.app-content select:focus,
+.app-content textarea:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.18);
+    border-color: var(--ulka-blue);
+}
+
+.table-container,
+.user-management,
+.shipment-form-box,
+#registeredCustomersSection,
+#trackingSection,
+#trackingResult,
+.sidebar-page-panel {
+    background: #ffffff;
+    border: 1px solid var(--ulka-border);
+    border-radius: 13px;
+    box-shadow: 0 4px 16px rgba(21, 43, 77, 0.04);
+}
+
+.app-content table {
+    border-collapse: collapse;
+}
+
+.app-content thead {
+    background: #edf4ff;
+}
+
+.app-content th {
+    color: #536783;
+}
+
+.app-content tbody tr:hover {
+    background: #f3f7ff;
+}
+
+.app-content button:focus-visible,
+.app-sidebar button:focus-visible {
+    outline: 3px solid rgba(91, 151, 255, 0.65);
+    outline-offset: 2px;
+}
+
+#shipmentFormSection,
+#userManagement,
+#registeredCustomersSection,
+#trackingSection,
+#trackingResult,
+#reportsPanel,
+#settingsPanel,
+#profilePanel {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .app-content {
+        padding: 18px;
+    }
+
+    .app-header {
+        padding: 17px 20px;
+    }
+}
+
+@media (max-width: 650px) {
+    .app-shell {
+        flex-direction: column;
+    }
+
+    .app-sidebar {
+        width: 100%;
+        max-width: none;
+    }
+
+    .app-content {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .app-header {
+        padding: 15px;
+    }
+
+    .role-banner {
+        margin: 10px;
+    }
+
+    .dashboard-cards {
+        gap: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-card,
+    .sidebar-link,
+    .sidebar-menu-toggle,
+    .sidebar-sub-link {
+        transition: none;
+    }
+}
+
+/* =========================================
+   ULKA LOGISTICS — CENTERED BLUE LOGIN
+   ========================================= */
+
+body:has(#loginSection) {
+    background: linear-gradient(135deg, #eaf2ff, #dbeafe);
+    color: #1d2b42;
+}
+
+body:has(#loginSection) .app-container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+#loginSection.login-box {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 36px 30px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #c7d9f7;
+    border-top: 5px solid #2563eb;
+    border-radius: 16px;
+    box-shadow: 0 18px 45px rgba(16, 38, 74, 0.14);
+    text-align: left;
+}
+
+#loginSection h1 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #10264a;
+    text-align: center;
+    font-size: 27px;
+    letter-spacing: 0.5px;
+}
+
+#loginSection h2 {
+    margin-top: 8px;
+    margin-bottom: 26px;
+    color: #2563eb;
+    text-align: center;
+}
+
+#loginSection label {
+    color: #334155;
+    font-weight: 600;
+}
+
+#loginSection input[type="email"],
+#loginSection input[type="password"],
+#loginSection .password-container input {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 12px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fbff;
+    color: #1d2b42;
+    font-size: 15px;
+}
+
+#loginSection input:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.2);
+    border-color: #2563eb;
+    background: #ffffff;
+}
+
+#loginSection .password-container {
+    width: 100%;
+}
+
+#loginSection #showPassword {
+    color: #2563eb;
+    cursor: pointer;
+}
+
+#loginSection #loginButton {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 18px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(100deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#loginSection #loginButton:hover {
+    background: linear-gradient(100deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+#loginSection .clear-button {
+    width: 100%;
+    min-height: 42px;
+    margin-top: 10px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#loginSection .clear-button:hover {
+    background: #dbeafe;
+}
+
+#loginSection #message {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+    body:has(#loginSection) .app-container {
+        padding: 16px;
+    }
+
+    #loginSection.login-box {
+        padding: 28px 22px;
+    }
+
+    #loginSection h1 {
+        font-size: 23px;
+    }
+}
+
+
+/* Clear and readable password SHOW/HIDE button */
+#loginSection .password-container {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+#loginSection .password-container input {
+    flex: 1;
+    min-width: 0;
+}
+
+#loginSection .password-container #showPassword {
+    flex: 0 0 76px;
+    min-width: 76px;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid #1d4ed8;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap;
+    opacity: 1;
+    visibility: visible;
+}
+
+#loginSection .password-container #showPassword:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+#loginSection .password-container #showPassword:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+

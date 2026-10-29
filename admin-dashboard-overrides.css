@@ -1,0 +1,631 @@
+:root {
+    --navy: #0b1f3a;
+    --blue: #2563eb;
+    --light-blue: #eaf1ff;
+    --background: #f3f6fb;
+    --text: #172b4d;
+    --muted: #718096;
+    --border: #e2e8f2;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.45;
+}
+
+.sidebar {
+    background: linear-gradient(180deg, #102b52, #0b1f3a);
+    padding: 25px 15px;
+    box-shadow: 5px 0 24px rgba(11,31,58,.08);
+}
+
+.brand-icon {
+    background: linear-gradient(135deg, #3984ff, #1554cf);
+    box-shadow: 0 7px 18px rgba(37,99,235,.25);
+}
+
+.nav-item {
+    min-height: 44px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    transition: background .18s, transform .18s;
+}
+
+.nav-item:hover {
+    background: rgba(255,255,255,.1);
+    color: white;
+    transform: translateX(2px);
+}
+
+.nav-item.active {
+    background: linear-gradient(100deg, #2e73ee, #215bd0);
+    box-shadow: 0 6px 15px rgba(20,82,190,.24);
+}
+
+.topbar {
+    box-shadow: 0 2px 10px rgba(20,45,85,.03);
+}
+
+.content {
+    padding: 28px 30px 24px;
+}
+
+.primary-button {
+    min-height: 40px;
+    border-radius: 9px;
+    background: linear-gradient(110deg, #2e73ee, #1e5bd3);
+    box-shadow: 0 5px 12px rgba(37,99,235,.15);
+    transition: transform .18s, box-shadow .18s;
+}
+
+.primary-button:hover {
+    background: linear-gradient(110deg, #2467df, #174ebc);
+    box-shadow: 0 7px 17px rgba(37,99,235,.23);
+    transform: translateY(-1px);
+}
+
+.stats {
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.card {
+    border-color: #e4eaf4;
+    border-radius: 15px;
+    box-shadow: 0 4px 18px rgba(21,43,77,.04);
+    transition: transform .18s, box-shadow .18s;
+}
+
+.stats .card:hover,
+.middle-grid > .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 24px rgba(21,43,77,.08);
+}
+
+.stat-icon {
+    background: linear-gradient(145deg, #f0f5ff, #e3edff);
+    border: 1px solid #e0eaff;
+}
+
+.stat-value {
+    color: var(--navy);
+    font-size: 30px;
+    letter-spacing: -.7px;
+}
+
+.middle-grid {
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.middle-grid .card {
+    padding: 22px;
+}
+
+.table-card {
+    border-radius: 15px;
+}
+
+.table-header {
+    padding: 22px;
+}
+
+thead {
+    background: #f5f8fd;
+}
+
+th {
+    color: #62728a;
+    letter-spacing: .6px;
+}
+
+tbody tr {
+    transition: background .15s;
+}
+
+tbody tr:hover {
+    background: #f2f7ff;
+}
+
+.action-link {
+    padding: 6px 2px;
+}
+
+.action-link:hover {
+    color: #103f9d;
+    text-decoration: underline;
+}
+
+button:focus-visible,
+select:focus-visible {
+    outline: 3px solid rgba(37,99,235,.4);
+    outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+    .sidebar { width: 220px; }
+    .content { padding: 23px 20px; }
+    .stats { gap: 14px; }
+    .stats .card { padding: 18px; }
+}
+
+@media (max-width: 760px) {
+    .sidebar { padding: 15px 13px; }
+    .topbar { padding: 15px 16px; }
+    .content { padding: 20px 15px; }
+    .welcome h2 { font-size: 19px; }
+    .welcome .primary-button { width: 100%; }
+    .middle-grid .card { padding: 18px; }
+    .table-header { padding: 18px; }
+    th, td { padding-left: 14px; padding-right: 14px; }
+}
+
+@media (max-width: 430px) {
+    .content { padding: 16px 11px; }
+    .stats { gap: 12px; }
+    .stats .card { padding: 17px; }
+    .stat-value { font-size: 27px; }
+    .middle-grid .card { padding: 15px; }
+    .chart { gap: 7px; }
+    .table-header { padding: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+
+/* ULKA LOGISTICS: COMPACT BLUE CONTROL CENTER */
+
+:root {
+    --background: #eaf0f8;
+    --border: #d7e1ef;
+}
+
+/* Reduce unused space */
+.content {
+    padding: 20px 22px;
+}
+
+.topbar {
+    min-height: 72px;
+    padding: 14px 24px;
+    background: #f7f9fd;
+}
+
+.welcome {
+    margin-bottom: 17px;
+}
+
+.welcome h2 {
+    font-size: 19px;
+}
+
+/* Make cards more compact and visually defined */
+.stats {
+    gap: 13px;
+    margin-bottom: 17px;
+}
+
+.stats .card {
+    padding: 15px 17px;
+    background: linear-gradient(145deg, #ffffff, #f3f7ff);
+    border-top: 3px solid #3c7bea;
+}
+
+.stat-value {
+    margin-top: 11px;
+    font-size: 27px;
+}
+
+.stat-note {
+    margin-top: 7px;
+}
+
+/* Reduce chart section height and gaps */
+.middle-grid {
+    gap: 15px;
+    margin-bottom: 17px;
+}
+
+.middle-grid .card {
+    padding: 17px;
+    background: #f9fbff;
+}
+
+.card-heading {
+    margin-bottom: 14px;
+}
+
+.chart {
+    height: 155px;
+}
+
+/* Give the shipment table a stronger visual structure */
+.table-card {
+    background: #f9fbff;
+}
+
+.table-header {
+    padding: 17px 19px;
+    background: #edf4ff;
+    border-bottom: 1px solid var(--border);
+}
+
+thead {
+    background: #e6eefb;
+}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+td {
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+tbody tr:nth-child(even) {
+    background: #f1f6fd;
+}
+
+tbody tr:hover {
+    background: #e4efff;
+}
+
+/* Add subtle blue-gray contrast across the workspace */
+.main {
+    background: #eaf0f8;
+}
+
+.prototype-note {
+    padding: 10px;
+}
+
+/* Keep the compact layout comfortable on small screens */
+@media (max-width: 760px) {
+    .content {
+        padding: 16px 13px;
+    }
+
+    .topbar {
+        padding: 13px 15px;
+    }
+
+    .stats {
+        gap: 11px;
+    }
+
+    .middle-grid {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 430px) {
+    .content {
+        padding: 12px 9px;
+    }
+
+    .stats .card {
+        padding: 14px;
+    }
+
+    .middle-grid .card {
+        padding: 13px;
+    }
+}
+
+/* ULKA LOGISTICS: PROFESSIONAL SIDEBAR NAVIGATION */
+
+.sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 560px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #405c83 #102b52;
+    padding: 22px 14px 14px;
+    background: linear-gradient(180deg, #102b52 0%, #0b1d36 100%);
+}
+
+.brand {
+    gap: 12px;
+    padding: 0 7px 23px;
+    border-bottom-color: rgba(190, 211, 244, .17);
+}
+
+.brand h2 {
+    font-size: 16px;
+    letter-spacing: .6px;
+    white-space: nowrap;
+}
+
+.brand p {
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.brand-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+}
+
+.sidebar nav {
+    flex: 1;
+    padding-top: 8px;
+}
+
+.nav-label {
+    margin: 22px 10px 9px;
+    color: #8faed9;
+    font-size: 9px;
+    letter-spacing: 1.6px;
+}
+
+.nav-item {
+    position: relative;
+    min-height: 44px;
+    gap: 12px;
+    margin: 3px 0;
+    padding: 11px 12px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: #c6d5eb;
+    font-size: 12px;
+    font-weight: 550;
+    white-space: nowrap;
+}
+
+.nav-icon {
+    display: inline-grid;
+    flex: 0 0 24px;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    color: #a9c9fa;
+    font-size: 16px;
+    transition: background .18s, color .18s;
+}
+
+.nav-item:hover {
+    transform: translateX(2px);
+    background: rgba(255, 255, 255, .075);
+    border-color: rgba(190, 211, 244, .09);
+    color: #fff;
+}
+
+.nav-item:hover .nav-icon {
+    background: rgba(255, 255, 255, .09);
+    color: #fff;
+}
+
+.nav-item.active {
+    background: linear-gradient(100deg, #2874ec, #1c58c5);
+    border-color: rgba(151, 195, 255, .25);
+    box-shadow: inset 3px 0 #a8ceff,
+                0 5px 13px rgba(0, 0, 0, .13);
+    color: #fff;
+}
+
+.nav-item.active .nav-icon {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+}
+
+.sidebar-footer {
+    margin-top: 20px;
+    padding: 16px 10px 5px;
+    border-top-color: rgba(190, 211, 244, .17);
+    color: #a9bdd9;
+    font-size: 10px;
+}
+
+.sidebar-footer strong {
+    color: #fff;
+    letter-spacing: .7px;
+}
+
+.nav-item:focus-visible {
+    outline: 2px solid #9fc7ff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 1100px) and (min-width: 761px) {
+    .sidebar {
+        width: 205px;
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+
+    .brand h2 {
+        font-size: 14px;
+    }
+
+    .nav-item {
+        gap: 9px;
+        padding-left: 9px;
+        padding-right: 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 760px) {
+    .sidebar {
+        position: relative;
+        top: auto;
+        display: block;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+        padding: 14px;
+    }
+
+    .brand {
+        padding-bottom: 14px;
+    }
+
+    .sidebar nav {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        overflow-x: auto;
+        padding: 12px 1px 7px;
+        scrollbar-width: thin;
+    }
+
+    .nav-label {
+        display: none;
+    }
+
+    .nav-item {
+        flex: 0 0 auto;
+        width: auto;
+        min-height: 40px;
+        margin: 0;
+        padding: 8px 11px;
+        font-size: 11px;
+    }
+
+    .nav-icon {
+        flex-basis: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+}
+
+/* ULKA LOGISTICS PROTOTYPE: FUNCTIONAL PAGE VIEWS */
+.prototype-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 16px;
+    padding: 16px;
+    margin: 0 0 14px;
+}
+.prototype-toolbar label,
+.prototype-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1 1 220px;
+    color: #405574;
+    font-size: 12px;
+    font-weight: 650;
+}
+.prototype-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #cbd8eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #172b4d;
+    font: inherit;
+    font-size: 13px;
+}
+.prototype-input:focus {
+    outline: 2px solid #9fc7ff;
+    outline-offset: 1px;
+    border-color: #2563eb;
+}
+.prototype-panel {
+    padding: 22px;
+    margin-bottom: 16px;
+}
+.prototype-panel h3 {
+    margin-top: 0;
+    color: #16345d;
+}
+.prototype-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 16px;
+}
+.prototype-form .primary-button {
+    align-self: end;
+    min-height: 42px;
+}
+.prototype-result {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid #c9dcfa;
+    border-radius: 10px;
+    background: #edf4ff;
+    color: #203b61;
+}
+.prototype-result h4 {
+    margin: 0 0 10px;
+    color: #174da6;
+}
+.prototype-result p {
+    margin: 8px 0;
+}
+.prototype-count,
+.prototype-muted {
+    color: #71839c;
+    font-size: 12px;
+}
+.prototype-count {
+    margin: 12px 2px;
+}
+.prototype-setting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+    color: #344b6c;
+    font-size: 13px;
+}
+.prototype-setting input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: #2563eb;
+}
+.profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 14px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2874ec, #123b82);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+}
+.prototype-compact table td,
+.prototype-compact table th {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+.content .prototype-note {
+    margin-top: 18px;
+}
+@media (max-width: 600px) {
+    .prototype-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .prototype-panel {
+        padding: 16px;
+    }
+    .prototype-toolbar {
+        align-items: stretch;
+    }
+}

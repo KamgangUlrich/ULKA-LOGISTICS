@@ -1,0 +1,588 @@
+const { rateLimit } = require("express-rate-limit");
+const bcrypt = require("bcryptjs");
+const session = require("express-session");
+const express = require("express");
+const Database = require("better-sqlite3");
+const path = require("path");
+
+const app = express();
+const PORT = 3000;
+
+function requireCustomer(req, res, next) {
+    if (!req.session || !req.session.customerId) {
+        return res.status(401).json({
+            success: false,
+            error: "Please log in to access this feature."
+        });
+    }
+
+    next();
+}
+
+app.use(express.json());
+
+// Customer login session configuration
+app.use(
+    session({
+        name: "ulka.sid",
+        secret:
+            process.env.SESSION_SECRET ||
+            "ulka-local-learning-secret-change-before-deployment",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: false,
+            maxAge: 2 * 60 * 60 * 1000
+        }
+    })
+);
+
+// Serve project files
+app.use(express.static(__dirname));
+
+
+/* Connect to the project database */
+const db = new Database(path.join(__dirname, "ulka.db"));
+
+console.log("ULKA LOGISTICS DATABASE CONNECTED!");
+
+// Create the customers table if it does not exist
+db.exec(`
+  CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fullName TEXT NOT NULL,
+    email TEXT NOT NULL COLLATE NOCASE UNIQUE,
+    passwordHash TEXT NOT NULL,
+    createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+console.log("CUSTOMERS TABLE READY!");
+
+// Create shipments table
+db.exec(`
+    CREATE TABLE IF NOT EXISTS shipments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trackingNumber TEXT NOT NULL,
+        customer TEXT NOT NULL,
+        destination TEXT NOT NULL,
+        weight REAL NOT NULL,
+        status TEXT NOT NULL
+    )
+`);
+
+console.log("SHIPMENTS TABLE READY!");
+
+// Test API
+app.get("/api/test", (req, res) => {
+    res.json({
+        message: "API IS WORKING!"
+    });
+});
+
+// Create shipment API
+app.post("/api/shipments", requireCustomer, (req, res) => {
+    try {
+        
+const {
+    trackingNumber,
+    destination,
+    weight,
+    status
+} = req.body;
+
+        
+if (
+    !trackingNumber ||
+    !destination ||
+    weight === undefined ||
+    weight === null ||
+    weight === "" ||
+    !status
+) 
+
+{
+            return res.status(400).json({
+                message: "Please provide all shipment information."
+            });
+        }
+
+        if (
+            !Number.isFinite(Number(weight)) ||
+            Number(weight) <= 0
+        ) {
+            return res.status(400).json({
+                message: "Weight must be a number greater than zero."
+            });
+        }
+
+        // Prevent duplicate tracking numbers
+        const existingShipment = db.prepare(`
+            SELECT id FROM shipments
+            WHERE trackingNumber = ?
+        `).get(trackingNumber);
+
+        if (existingShipment) {
+            return res.status(409).json({
+                message: "This tracking number already exists."
+            });
+        }
+        
+
+const insertShipment = db.prepare(`
+    INSERT INTO shipments
+    (trackingNumber, customer, destination, weight, status, customerId)
+    VALUES (?, ?, ?, ?, ?, ?)
+`);
+
+const result = insertShipment.run(
+    trackingNumber,
+    req.session.customerName,
+    destination,
+    Number(weight),
+    status,
+    req.session.customerId
+);
+
+        return res.status(201).json({
+            message: "Shipment created successfully!",
+            shipmentId: result.lastInsertRowid,
+            trackingNumber: trackingNumber
+        });
+
+    } catch (error) {
+        console.error("Shipment creation error:", error.message);
+
+        if (
+            error.code === "SQLITE_CONSTRAINT_UNIQUE" ||
+            error.code === "SQLITE_CONSTRAINT_PRIMARYKEY"
+        ) {
+            return res.status(409).json({
+                message: "This tracking number already exists."
+            });
+        }
+
+        return res.status(500).json({
+            message: "Unable to create shipment."
+        });
+    }
+});
+
+// Get shipments with pagination and sorting
+app.get("/api/shipments", requireCustomer, (req, res) => {
+    try {
+        const page = Math.max(
+            1,
+            parseInt(req.query.page, 10) || 1
+        );
+
+        const limit = Math.min(
+            100,
+            Math.max(1, parseInt(req.query.limit, 10) || 10)
+        );
+
+        const sort =
+            req.query.sort === "oldest" ? "ASC" : "DESC";
+
+        const offset = (page - 1) * limit;
+
+        
+const total = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM shipments
+    WHERE customerId = ?
+`).get(req.session.customerId).count;
+   
+const shipments = db.prepare(`
+    SELECT *
+    FROM shipments
+    WHERE customerId = ?
+    ORDER BY id ${sort}
+    LIMIT ? OFFSET ?
+`).all(req.session.customerId, limit, offset);
+
+
+        return res.json({
+            total: total,
+            page: page,
+            limit: limit,
+            totalPages: Math.ceil(total / limit),
+            shipments: shipments
+        });
+
+    } catch (error) {
+        console.error(
+            "Error retrieving shipments:",
+            error.message
+        );
+
+        return res.status(500).json({
+            message: "Unable to retrieve shipments."
+        });
+    }
+});
+
+
+ // Get one shipment by tracking number (public tracking)
+app.get("/api/shipments/:trackingNumber", (req, res) => {
+    try {
+        const trackingNumber = req.params.trackingNumber;
+
+        const shipment = db.prepare(`
+            SELECT trackingNumber, status, destination
+            FROM shipments
+            WHERE trackingNumber = ?
+        `).get(trackingNumber);
+
+        if (!shipment) {
+            return res.status(404).json({
+                success: false,
+                message: "Shipment not found."
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Shipment found successfully!",
+            shipment: shipment
+        });
+
+    } catch (error) {
+        console.error(
+            "Error retrieving shipment:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to retrieve shipment."
+        });
+    }
+});
+
+// Update a shipment's status
+app.patch("/api/shipments/:trackingNumber/status", requireCustomer, (req, res) => {
+    try {
+        const trackingNumber = req.params.trackingNumber;
+        const { status } = req.body;
+
+        const allowedStatuses = [
+            "Pending",
+            "In Transit",
+            "Delivered"
+        ];
+
+        if (
+            typeof status !== "string" ||
+            !allowedStatuses.includes(status.trim())
+        ) {
+            return res.status(400).json({
+                message:
+                    "Invalid status. Use Pending, In Transit, or Delivered."
+            });
+        }
+
+        
+const shipment = db.prepare(`
+    SELECT id FROM shipments
+    WHERE trackingNumber = ?
+    AND customerId = ?
+`).get(trackingNumber, req.session.customerId);
+
+
+        if (!shipment) {
+            return res.status(404).json({
+                message: "Shipment not found."
+            });
+        }
+        
+db.prepare(`
+    UPDATE shipments
+    SET status = ?
+    WHERE trackingNumber = ?
+    AND customerId = ?
+`).run(
+    status.trim(),
+    trackingNumber,
+    req.session.customerId
+);
+        return res.json({
+            message: "Shipment status updated successfully!",
+            trackingNumber: trackingNumber,
+            status: status.trim()
+        });
+
+    } catch (error) {
+        console.error("Status update error:", error.message);
+
+        return res.status(500).json({
+            message: "Unable to update shipment status."
+        });
+    }
+});
+
+// Search shipments by customer or destination
+app.get("/api/search", requireCustomer, (req, res) => {
+    try {
+        const term = req.query.term;
+
+        if (typeof term !== "string" || !term.trim()) {
+            return res.status(400).json({
+                message: "Please provide a search term."
+            });
+        }
+
+        const searchTerm = `%${term.trim()}%`;
+
+        
+const shipments = db.prepare(`
+    SELECT * FROM shipments
+    WHERE customerId = ?
+    AND (customer LIKE ? OR destination LIKE ?)
+    ORDER BY id DESC
+`).all(
+    req.session.customerId,
+    searchTerm,
+    searchTerm
+);
+
+        return res.json({
+            total: shipments.length,
+            shipments: shipments
+        });
+
+    } catch (error) {
+        console.error("Shipment search error:", error.message);
+
+        return res.status(500).json({
+            message: "Unable to search shipments."
+        });
+    }
+});
+
+// Filter shipments by status
+app.get("/api/shipments/status/:status", requireCustomer, (req, res) => {
+    try {
+       
+const shipments = db.prepare(`
+    SELECT * FROM shipments
+    WHERE status = ?
+    AND customerId = ?
+    ORDER BY id DESC
+`).all(
+    req.params.status,
+    req.session.customerId
+);
+
+        return res.json({
+            total: shipments.length,
+            shipments: shipments
+        });
+
+    } catch (error) {
+        console.error("Shipment filter error:", error.message);
+
+        return res.status(500).json({
+            message: "Unable to filter shipments."
+        });
+    }
+});
+
+// Delete a shipment by tracking number
+app.delete("/api/shipments/:trackingNumber", requireCustomer, (req, res) => {
+    try {
+        
+const result = db.prepare(`
+    DELETE FROM shipments
+    WHERE trackingNumber = ?
+    AND customerId = ?
+`).run(
+    req.params.trackingNumber,
+    req.session.customerId
+);
+
+        if (result.changes === 0) {
+            return res.status(404).json({
+                message: "Shipment not found."
+            });
+        }
+
+        return res.json({
+            message: "Shipment deleted successfully.",
+            trackingNumber: req.params.trackingNumber
+        });
+
+    } catch (error) {
+        console.error("Shipment deletion error:", error.message);
+
+        return res.status(500).json({
+            message: "Unable to delete shipment."
+        });
+    }
+});
+
+// Start the server
+
+/* ===== CUSTOMER REGISTRATION API ===== */
+
+app.post("/api/customers/register", async (req, res) => {
+  try {
+    const fullName = String(req.body.fullName || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+
+    if (fullName.length < 2 || fullName.length > 100) {
+      return res.status(400).json({
+        error: "Name must contain 2–100 characters."
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+      return res.status(400).json({
+        error: "Enter a valid email address."
+      });
+    }
+
+    if (password.length < 12 || password.length > 72) {
+      return res.status(400).json({
+        error: "Password must contain 12–72 characters."
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const insertCustomer = db.prepare(`
+      INSERT INTO customers (fullName, email, passwordHash)
+      VALUES (?, ?, ?)
+    `);
+
+    const result = insertCustomer.run(fullName, email, passwordHash);
+
+    return res.status(201).json({
+      message: "Customer account created successfully.",
+      customerId: result.lastInsertRowid
+    });
+
+  } catch (error) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      return res.status(409).json({
+        error: "This email is already registered."
+      });
+    }
+
+    console.error("Registration error:", error.message);
+
+    
+    return res.status(500).json({
+      error: "Unable to register customer."
+    });
+  }
+});
+
+
+/* ===== CUSTOMER LOGIN API ===== */
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        success: false,
+        error: "Too many login attempts. Please try again in 15 minutes."
+    }
+});
+
+app.post("/api/customers/login", loginLimiter, async (req, res) => {
+    try {
+        const email = String(req.body.email || "")
+            .trim()
+            .toLowerCase();
+
+        const password = String(req.body.password || "");
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                error: "Please enter your email and password."
+            });
+        }
+
+        const customer = db.prepare(`
+            SELECT id, fullName, email, passwordHash
+            FROM customers
+            WHERE email = ?
+        `).get(email);
+
+        if (!customer) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password."
+            });
+        }
+
+        const passwordMatches = await bcrypt.compare(
+            password,
+            customer.passwordHash
+        );
+
+        if (!passwordMatches) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password."
+            });
+        }
+
+        req.session.customerId = customer.id;
+        req.session.customerName = customer.fullName;
+        req.session.customerEmail = customer.email;
+
+        return res.json({
+            success: true,
+            message: "Login successful.",
+            customer: {
+                id: customer.id,
+                fullName: customer.fullName,
+                email: customer.email
+            }
+        });
+
+    } catch (error) {
+        console.error("Customer login error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            error: "Unable to log in."
+        });
+    }
+});
+
+/* ===== CUSTOMER LOGOUT ===== */
+
+app.post("/api/customers/logout", (req, res) => {
+    req.session.destroy((error) => {
+        if (error) {
+            console.error("Customer logout error:", error.message);
+
+            return res.status(500).json({
+                success: false,
+                message: "Unable to log out."
+            });
+        }
+
+        res.clearCookie("ulka.sid", {
+            path: "/"
+        });
+
+        return res.json({
+            success: true,
+            message: "Logout successful."
+        });
+    });
+});/* ===== START ULKA LOGISTICS SERVER ===== */
+
+app.listen(PORT, () => {
+    console.log(`ULKA LOGISTICS SERVER RUNNING ON PORT ${PORT}`);
+});
