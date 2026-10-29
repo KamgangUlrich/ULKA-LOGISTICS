@@ -12,6 +12,4 @@ cookies.txt
 second-cookies.txt
 
 # Local database backups
-ulka.db
-*.db-wal
-*.db-shm
+
