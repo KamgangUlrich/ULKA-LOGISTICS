@@ -3,7 +3,7 @@ const { rateLimit } = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const express = require("express");
-const pool = require("./db"); // On importe notre connexion PostgreSQL depuis db.js
+const pool = require("./db"); // Connexion PostgreSQL (depuis db.js)
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
@@ -29,7 +29,7 @@ function requireCustomer(req, res, next) {
     next();
 }
 
-// Verify staff identity and current permissions from the database.
+// Vérification des rôles du personnel (Staff)
 function requireStaffRole(...allowedRoles) {
     return async (req, res, next) => {
         if (!req.session || !req.session.staffId) {
@@ -79,7 +79,7 @@ function requireStaffRole(...allowedRoles) {
 
 app.use(express.json());
 
-// Customer login session configuration
+// Configuration des sessions
 app.use(
     session({
         name: "ulka.sid",
@@ -95,7 +95,7 @@ app.use(
     })
 );
 
-// Block private project files from public access
+// Bloquer l'accès public aux fichiers sensibles
 app.use((req, res, next) => {
     const blockedFiles = new Set([
         "/ulka.db", "/ulka.db-wal", "/ulka.db-shm", "/shipments.html.backup",
@@ -182,7 +182,82 @@ app.get("/api/test", (req, res) => {
     res.json({ message: "API IS WORKING WITH POSTGRESQL!" });
 });
 
-// --- CRÉATION D'UNE EXPÉDITION ---
+// --- ROUTES DE CONNEXION (LOGIN) ---
+
+// 1. Connexion Staff / Admin
+app.post("/api/staff/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: "Email et mot de passe requis." });
+        }
+
+        const result = await pool.query(
+            "SELECT * FROM staff WHERE LOWER(email) = LOWER($1)",
+            [email.trim()]
+        );
+
+        const staff = result.rows[0];
+        if (!staff || staff.status !== "Active") {
+            return res.status(401).json({ success: false, error: "Identifiants invalides ou compte inactif." });
+        }
+
+        const match = await bcrypt.compare(password, staff.passwordHash);
+        if (!match) {
+            return res.status(401).json({ success: false, error: "Identifiants invalides." });
+        }
+
+        req.session.staffId = staff.id;
+        return res.json({
+            success: true,
+            message: "Connexion réussie.",
+            staff: { id: staff.id, name: staff.name, email: staff.email, role: staff.role }
+        });
+    } catch (error) {
+        console.error("Erreur login staff:", error.message);
+        return res.status(500).json({ success: false, error: "Erreur serveur lors de la connexion." });
+    }
+});
+
+// 2. Connexion Client
+app.post("/api/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: "Email et mot de passe requis." });
+        }
+
+        const result = await pool.query(
+            "SELECT * FROM customers WHERE LOWER(email) = LOWER($1)",
+            [email.trim()]
+        );
+
+        const customer = result.rows[0];
+        if (!customer) {
+            return res.status(401).json({ success: false, error: "Identifiants invalides." });
+        }
+
+        const match = await bcrypt.compare(password, customer.passwordHash);
+        if (!match) {
+            return res.status(401).json({ success: false, error: "Identifiants invalides." });
+        }
+
+        req.session.customerId = customer.id;
+        return res.json({
+            success: true,
+            message: "Connexion réussie.",
+            customer: { id: customer.id, fullName: customer.fullName, email: customer.email }
+        });
+    } catch (error) {
+        console.error("Erreur login client:", error.message);
+        return res.status(500).json({ success: false, error: "Erreur serveur lors de la connexion." });
+    }
+});
+
+
+// --- GESTION DES EXPÉDITIONS (SHIPMENTS) ---
+
+// Créer une expédition
 app.post("/api/shipments", requireStaffRole("Admin", "Dispatcher"), async (req, res) => {
     try {
         const trackingNumber = String(req.body.trackingNumber || "").trim();
@@ -236,7 +311,7 @@ app.post("/api/shipments", requireStaffRole("Admin", "Dispatcher"), async (req, 
             }
         });
     } catch (error) {
-        if (error.code === "23505") { // Code d'erreur unique violation pour PostgreSQL
+        if (error.code === "23505") { // Violation d'unicité PostgreSQL
             return res.status(409).json({
                 success: false,
                 error: "That tracking number already exists."
@@ -250,7 +325,7 @@ app.post("/api/shipments", requireStaffRole("Admin", "Dispatcher"), async (req, 
     }
 });
 
-// --- LISTE DES EXPÉDITIONS ---
+// Lister les expéditions
 app.get("/api/shipments", async (req, res) => {
     try {
         let result;
