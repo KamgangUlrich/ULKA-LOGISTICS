@@ -2,6 +2,7 @@ require("dotenv").config();
 const { rateLimit } = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const express = require("express");
 const pool = require("./db"); // Connexion PostgreSQL (depuis db.js)
 const path = require("path");
@@ -79,10 +80,15 @@ function requireStaffRole(...allowedRoles) {
 
 app.use(express.json());
 
-// Configuration des sessions
+// Configuration des sessions persistantes avec connect-pg-simple
 app.use(
     session({
         name: "ulka.sid",
+        store: new pgSession({
+            pool: pool,
+            tableName: "session",
+            createTable: false
+        }),
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
@@ -167,6 +173,29 @@ async function initializeDatabase() {
                 creationDate TEXT,
                 estimatedDeliveryDate TEXT
             )
+        `);
+
+        // Table des sessions pour connect-pg-simple
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS "session" (
+                "sid" varchar NOT NULL COLLATE "default",
+                "sess" json NOT NULL,
+                "expire" timestamp(6) NOT NULL
+            )
+        `);
+
+        await pool.query(`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey') THEN
+                    ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid");
+                END IF;
+            END
+            $$;
+        `);
+
+        await pool.query(`
+            CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
         `);
 
         console.log("ULKA LOGISTICS POSTGRESQL TABLES READY!");
