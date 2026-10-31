@@ -222,7 +222,7 @@ app.post("/api/staff/login", async (req, res) => {
         }
 
         const result = await pool.query(
-            "SELECT * FROM staff WHERE LOWER(email) = LOWER($1)",
+            "SELECT id, name, email, role, status, passwordhash AS \"passwordHash\" FROM staff WHERE LOWER(email) = LOWER($1)",
             [email.trim()]
         );
 
@@ -257,7 +257,7 @@ app.post("/api/login", async (req, res) => {
         }
 
         const result = await pool.query(
-            "SELECT * FROM customers WHERE LOWER(email) = LOWER($1)",
+            "SELECT id, fullName, email, phone, passwordhash AS \"passwordHash\" FROM customers WHERE LOWER(email) = LOWER($1)",
             [email.trim()]
         );
 

@@ -1,391 +1,510 @@
-require("dotenv").config();
-const { rateLimit } = require("express-rate-limit");
-const bcrypt = require("bcryptjs");
-const session = require("express-session");
-const pgSession = require("connect-pg-simple")(session);
-const express = require("express");
-const pool = require("./db"); // Connexion PostgreSQL (depuis db.js)
-const path = require("path");
-const fs = require("fs");
-const multer = require("multer");
+/* =========================================================
+   ULKA LOGISTICS
+   COURSE 22
+   USER MANAGEMENT & REGISTRATION
+========================================================= */
 
-const app = express();
-const PORT = Number(process.env.PORT) || 3000;
 
-if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1);
-}
+/* =========================================================
+   USER STORAGE
+========================================================= */
 
-if (!process.env.SESSION_SECRET) {
-    throw new Error("SESSION_SECRET is required. Check your .env file.");
-}
+const userStorageKey = "ulkaUsers";
+const defaultUsers = [];
+let users;
 
-function requireCustomer(req, res, next) {
-    if (!req.session || !req.session.customerId) {
-        return res.status(401).json({
-            success: false,
-            error: "Please log in to access this feature."
-        });
+const savedUsers = localStorage.getItem(userStorageKey);
+
+if (savedUsers) {
+    try {
+        users = JSON.parse(savedUsers);
+    } catch (error) {
+        users = defaultUsers;
+        saveUsers();
     }
-    next();
+} else {
+    users = defaultUsers;
+    saveUsers();
 }
 
-// Vérification des rôles du personnel (Staff)
-function requireStaffRole(...allowedRoles) {
-    return async (req, res, next) => {
-        if (!req.session || !req.session.staffId) {
-            return res.status(401).json({
-                success: false,
-                error: "Staff login is required."
-            });
-        }
 
-        try {
-            const result = await pool.query(`
-                SELECT id, name, email, role, status
-                FROM staff
-                WHERE id = $1
-            `, [req.session.staffId]);
+/* =========================================================
+   SAVE USERS
+========================================================= */
 
-            const staff = result.rows[0];
-
-            if (!staff || staff.status !== "Active") {
-                return res.status(403).json({
-                    success: false,
-                    error: "Active staff access is required."
-                });
-            }
-
-            if (
-                allowedRoles.length > 0 &&
-                !allowedRoles.includes(staff.role)
-            ) {
-                return res.status(403).json({
-                    success: false,
-                    error: "You do not have permission to perform this action."
-                });
-            }
-
-            req.staff = staff;
-            next();
-        } catch (error) {
-            console.error("Staff authorization error:", error.message);
-            return res.status(500).json({
-                success: false,
-                error: "Unable to verify staff permissions."
-            });
-        }
-    };
+function saveUsers() {
+    localStorage.setItem(
+        userStorageKey,
+        JSON.stringify(users)
+    );
 }
 
-app.use(express.json());
 
-// Configuration des sessions persistantes avec connect-pg-simple
-app.use(
-    session({
-        name: "ulka.sid",
-        store: new pgSession({
-            pool: pool,
-            tableName: "session",
-            createTable: false
-        }),
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 2 * 60 * 60 * 1000
+/* =========================================================
+   LOGIN ELEMENTS
+========================================================= */
+
+const loginSection = document.getElementById("loginSection");
+const mainApplication = document.getElementById("mainApplication");
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("message");
+const passwordInput = document.getElementById("password");
+
+
+
+/* =========================================================
+   LOGIN - BACKEND CUSTOMERS + EXISTING DEMO STAFF
+========================================================= */
+
+if (loginForm) {
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+            event.preventDefault();
+
+            const email = document
+                .getElementById("email")
+                .value
+                .trim()
+                .toLowerCase();
+
+            const password = passwordInput.value;
+
+            if (email === "" || password === "") {
+                loginMessage.textContent = "Please enter email and password.";
+                loginMessage.style.color = "red";
+                return;
+            }
+
+            const loginButton = document.getElementById("loginButton");
+            if (loginButton) {
+                loginButton.disabled = true;
+                loginButton.textContent = "PLEASE WAIT...";
+            }
+
+            try {
+                /*
+- FIRST: Authenticate staff through the server.
+                 */
+                const staffResponse = await fetch(
+                    "/api/staff/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        credentials: "same-origin",
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                const staffResult = await staffResponse.json();
+
+                if (staffResponse.ok && staffResult.success) {
+                    const staffUser = staffResult.staff || staffResult.user;
+
+                    localStorage.setItem(
+                        "ulkaLoggedUser",
+                        JSON.stringify({
+                            ...staffUser,
+                            authType: "staff"
+                        })
+                    );
+
+                    loginMessage.textContent = "Login successful.";
+                    loginMessage.style.color = "green";
+
+                    window.location.replace("/admin-dashboard-model.html");
+                    return;
+                }
+
+                if (
+                    staffResponse.status === 403 ||
+                    staffResponse.status === 429 ||
+                    staffResponse.status >= 500
+                ) {
+                    loginMessage.textContent =
+                        staffResult.error ||
+                        staffResult.message ||
+                        "Staff login failed. Please try again.";
+                    loginMessage.style.color = "red";
+                    return;
+                }
+
+                /*
+- SECOND: If not staff, try the backend customer login (/api/login).
+                 */
+                const response = await fetch(
+                    "/api/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        credentials: "same-origin",
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    loginMessage.textContent =
+                        result.error ||
+                        result.message ||
+                        "Invalid email or password.";
+                    loginMessage.style.color = "red";
+                    return;
+                }
+
+                const customerUser = {
+                    id: "customer-" + result.customer.id,
+                    name: result.customer.fullName,
+                    email: result.customer.email,
+                    role: "Customer",
+                    status: "Active",
+                    authType: "customer"
+                };
+
+                localStorage.setItem(
+                    "ulkaLoggedUser",
+                    JSON.stringify(customerUser)
+                );
+
+                loginMessage.textContent = "Login successful.";
+                loginMessage.style.color = "green";
+
+                window.location.replace("/admin-dashboard-model.html");
+
+            } catch (error) {
+                console.error("Login error:", error);
+                loginMessage.textContent =
+                    "Cannot connect to the server. Check that ULKA LOGISTICS is running.";
+                loginMessage.style.color = "red";
+            } finally {
+                if (loginButton) {
+                    loginButton.disabled = false;
+                    loginButton.textContent = "LOGIN";
+                }
+            }
         }
-    })
-);
+    );
+}
 
-// Bloquer l'accès public aux fichiers sensibles
-app.use((req, res, next) => {
-    const blockedFiles = new Set([
-        "/ulka.db", "/ulka.db-wal", "/ulka.db-shm", "/shipments.html.backup",
-        "/server.js", "/package.json", "/package-lock.json", "/ulka-session.txt",
-        "/cookies.txt", "/second-cookies.txt"
-    ]);
 
-    const requestedPath = req.path.toLowerCase();
+
+/* =========================================================
+   SHOW PASSWORD
+========================================================= */
+
+const showPasswordBtn = document.getElementById("showPassword");
+if (showPasswordBtn && passwordInput) {
+    showPasswordBtn.addEventListener(
+        "click",
+        function () {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                this.textContent = "HIDE";
+            } else {
+                passwordInput.type = "password";
+                this.textContent = "SHOW";
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   CLEAR LOGIN
+========================================================= */
+
+const clearButton = document.getElementById("clearButton");
+if (clearButton && passwordInput) {
+    clearButton.addEventListener(
+        "click",
+        function () {
+            const emailInput = document.getElementById("email");
+            if (emailInput) emailInput.value = "";
+            passwordInput.value = "";
+            if (loginMessage) loginMessage.textContent = "";
+        }
+    );
+}
+
+
+/* =========================================================
+   LOAD SHIPMENTS FROM SERVER
+========================================================= */
+
+async function loadShipmentsFromServer() {
+    const response = await fetch("/api/shipments", {
+        method: "GET",
+        credentials: "same-origin"
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !Array.isArray(result.shipments)) {
+        throw new Error(result.error || "Unable to load shipments.");
+    }
+
+    return result.shipments.map(item => ({
+        id: item.id,
+        trackingNumber: item.trackingnumber || item.trackingNumber,
+        customer: item.customer,
+        destination: item.destination,
+        weight: Number(item.weight),
+        status: item.status,
+        creationDate: item.creationdate || item.creationDate || "",
+        estimatedDeliveryDate: item.estimateddeliverydate || item.estimatedDeliveryDate || "",
+        customerId: item.customerid ?? item.customerId ?? null
+    }));
+}
+
+
+/* =========================================================
+   OPEN APPLICATION
+========================================================= */
+
+async function openApplication(user) {
+    refreshSidebarProfilePicture(user.name);
+    if (loginSection) loginSection.style.display = "none";
+    if (mainApplication) mainApplication.style.display = "flex";
+
+    const userNameEl = document.getElementById("loggedUserName");
+    const userRoleEl = document.getElementById("loggedUserRole");
+    const roleBannerEl = document.getElementById("roleBanner");
+
+    if (userNameEl) userNameEl.textContent = user.name;
+    if (userRoleEl) userRoleEl.textContent = user.role;
+    if (roleBannerEl) roleBannerEl.textContent = getRoleMessage(user.role);
+
+    applyPermissions(user.role);
+    setupSidebarNavigation(user.role);
+
+    try {
+        window.shipments = await loadShipmentsFromServer();
+        if (typeof displayUsers === "function") displayUsers();
+        if (user.role === "Admin" && typeof loadRegisteredCustomers === "function") {
+            await loadRegisteredCustomers();
+        }
+        if (typeof displayShipments === "function") displayShipments();
+        if (typeof updateDashboard === "function") updateDashboard();
+    } catch (error) {
+        console.error("Unable to load database shipments:", error);
+        window.shipments = [];
+        if (typeof displayShipments === "function") displayShipments();
+        if (typeof updateDashboard === "function") updateDashboard();
+    }
+}
+
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+========================================================= */
+
+let sidebarActiveRole = "";
+let sidebarActiveView = "dashboard";
+let sidebarTrackingResultVisible = false;
+
+const sidebarAllowedViews = {
+    "Admin": [
+        "dashboard", "shipmentDashboard", "shipmentManagement",
+        "customers", "staffCreate", "staffExisting",
+        "tracking", "reports", "settings", "profile"
+    ],
+    "Dispatcher": [
+        "dashboard", "shipmentDashboard", "shipmentManagement",
+        "tracking", "reports", "profile"
+    ],
+    "Warehouse Staff": [
+        "dashboard", "shipmentDashboard", "shipmentManagement",
+        "tracking", "profile"
+    ],
+    "Customer": [
+        "dashboard", "myShipments", "tracking", "profile"
+    ]
+};
+
+function setupSidebarNavigation(role) {
+    sidebarActiveRole = role;
+    const allowedViews = sidebarAllowedViews[role] || [];
+
+    document.querySelectorAll(".sidebar-link[data-view], .sidebar-sub-link[data-view]")
+        .forEach(function (button) {
+            const view = button.dataset.view;
+            const allowed = allowedViews.includes(view);
+
+            button.style.display = allowed ? "flex" : "none";
+            button.disabled = !allowed;
+            button.setAttribute("aria-hidden", String(!allowed));
+
+            button.onclick = function () {
+                showSidebarView(view);
+            };
+        });
+
+    document.querySelectorAll("[data-menu-toggle]").forEach(function (button) {
+        const menu = button.dataset.menuToggle;
+        const allowed = menu === "shipments"
+            ? allowedViews.includes("shipmentDashboard")
+            : menu === "staff" && sidebarActiveRole === "Admin";
+
+        button.style.display = allowed ? "flex" : "none";
+        button.disabled = !allowed;
+        button.setAttribute("aria-hidden", String(!allowed));
+
+        button.onclick = function () {
+            const submenu = document.getElementById(
+                menu === "shipments" ? "shipmentsSubmenu" : "staffSubmenu"
+            );
+            if (!submenu) return;
+            submenu.hidden = !submenu.hidden;
+            button.setAttribute("aria-expanded", String(!submenu.hidden));
+        };
+    });
+
+    const user = getCurrentUser();
+    const profileNameEl = document.getElementById("sidebarProfileName");
+    const profileRoleEl = document.getElementById("sidebarProfileRole");
+
+    if (profileNameEl) profileNameEl.textContent = user && user.name ? user.name : "User";
+    if (profileRoleEl) profileRoleEl.textContent = role;
+
+    showSidebarView("dashboard");
+}
+
+function showSidebarView(view) {
+    const allowedViews = sidebarAllowedViews[sidebarActiveRole] || [];
+    if (!allowedViews.includes(view)) return;
+
+    const trackingResult = document.getElementById("trackingResult");
+    const dashboard = document.querySelector(".dashboard");
+    const shipmentForm = document.getElementById("shipmentFormSection");
+    const userManagement = document.getElementById("userManagement");
+    const customerSection = document.getElementById("registeredCustomersSection");
+    const trackingSection = document.getElementById("trackingSection");
+    const reportsPanel = document.getElementById("reportsPanel");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const profilePanel = document.getElementById("profilePanel");
+
+    [
+        dashboard, shipmentForm, userManagement, customerSection,
+        trackingSection, trackingResult, reportsPanel, settingsPanel,
+        profilePanel
+    ].forEach(function (panel) {
+        if (panel) panel.style.display = "none";
+    });
+
+    if (view === "dashboard" || view === "shipmentDashboard" || view === "myShipments") {
+        if (dashboard) dashboard.style.display = "block";
+    }
+
+    if (view === "shipmentManagement") {
+        if (dashboard) dashboard.style.display = "block";
+        if (shipmentForm) shipmentForm.style.display = "block";
+    }
+
+    if (view === "customers" && sidebarActiveRole === "Admin" && customerSection) {
+        customerSection.style.display = "block";
+    }
 
     if (
-        blockedFiles.has(requestedPath) ||
-        requestedPath === "/.env" ||
-        requestedPath.startsWith("/.env.") ||
-        requestedPath === "/setup-staff.js" ||
-        requestedPath === "/backups" ||
-        requestedPath.startsWith("/backups/") ||
-        requestedPath.endsWith(".db") ||
-        requestedPath.endsWith(".backup") ||
-        requestedPath.endsWith(".txt") ||
-        requestedPath.includes("backup")
+        (view === "staffCreate" || view === "staffExisting") &&
+        sidebarActiveRole === "Admin" && userManagement
     ) {
-        return res.status(404).send("Not found.");
+        userManagement.style.display = "block";
     }
 
-    next();
-});
+    if (view === "tracking" && trackingSection) {
+        trackingSection.style.display = "block";
+    }
 
-app.use(express.static(__dirname));
+    if (view === "reports" && reportsPanel) reportsPanel.style.display = "block";
+    if (view === "settings" && settingsPanel) settingsPanel.style.display = "block";
+    
+    if (view === "profile" && profilePanel) {
+        profilePanel.style.display = "block";
+        const user = getCurrentUser();
+        refreshSidebarProfilePicture(user && user.name);
+    }
 
-app.get("/", (req, res) => {
-    res.redirect("/admin-dashboard-model.html");
-});
+    sidebarActiveView = view;
+}
 
-/* --- INITIALISATION DES TABLES POSTGRESQL --- */
-async function initializeDatabase() {
+function getRoleMessage(role) {
+    if (role === "Admin") return "👑 Administrator — Full system and user management access.";
+    if (role === "Dispatcher") return "🚚 Dispatcher — Shipment operation access.";
+    if (role === "Warehouse Staff") return "📦 Warehouse Staff — Warehouse shipment access.";
+    if (role === "Customer") return "👤 Customer — Shipment tracking access.";
+    return "Welcome to ULKA LOGISTICS.";
+}
+
+function applyPermissions(role) {
+    const userManagement = document.getElementById("userManagement");
+    const shipmentForm = document.getElementById("shipmentFormSection");
+    
+    if (userManagement) userManagement.style.display = role === "Admin" ? "block" : "none";
+    if (shipmentForm) shipmentForm.style.display = ["Admin", "Dispatcher", "Warehouse Staff"].includes(role) ? "block" : "none";
+}
+
+function refreshSidebarProfilePicture(displayName) {
+    const image = document.getElementById("sidebarProfilePicture");
+    const fallback = document.getElementById("sidebarProfilePictureFallback");
+    if (!image || !fallback) return;
+
+    fallback.textContent = (displayName || "U").trim().charAt(0).toUpperCase() || "U";
+    image.onload = function () {
+        image.style.display = "block";
+        fallback.style.display = "none";
+    };
+    image.onerror = function () {
+        image.style.display = "none";
+        fallback.style.display = "flex";
+    };
+    image.src = "/api/profile-picture?ts=" + Date.now();
+}
+
+function getCurrentUser() {
+    const saved = localStorage.getItem("ulkaLoggedUser");
+    if (!saved) return null;
     try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS customers (
-                id SERIAL PRIMARY KEY,
-                fullName TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                passwordHash TEXT NOT NULL,
-                createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                phone TEXT
-            )
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS staff (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                passwordHash TEXT NOT NULL,
-                role TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'Active'
-            )
-        `);
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS shipments (
-                id SERIAL PRIMARY KEY,
-                trackingNumber TEXT NOT NULL UNIQUE,
-                customer TEXT NOT NULL,
-                destination TEXT NOT NULL,
-                weight REAL NOT NULL,
-                status TEXT NOT NULL,
-                customerId INTEGER REFERENCES customers(id),
-                phone TEXT,
-                creationDate TEXT,
-                estimatedDeliveryDate TEXT
-            )
-        `);
-
-        // Table des sessions pour connect-pg-simple
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS "session" (
-                "sid" varchar NOT NULL COLLATE "default",
-                "sess" json NOT NULL,
-                "expire" timestamp(6) NOT NULL
-            )
-        `);
-
-        await pool.query(`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey') THEN
-                    ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid");
-                END IF;
-            END
-            $$;
-        `);
-
-        await pool.query(`
-            CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
-        `);
-
-        console.log("ULKA LOGISTICS POSTGRESQL TABLES READY!");
-    } catch (err) {
-        console.error("Erreur lors de l'initialisation des tables :", err);
+        return JSON.parse(saved);
+    } catch {
+        return null;
     }
 }
 
-initializeDatabase();
+/* =========================================================
+   CHECK EXISTING LOGIN ON LOAD
+========================================================= */
 
-// --- TEST API ---
-app.get("/api/test", (req, res) => {
-    res.json({ message: "API IS WORKING WITH POSTGRESQL!" });
-});
+async function checkExistingLogin() {
+    const user = getCurrentUser();
+    if (!user) return;
 
-// --- ROUTES DE CONNEXION (LOGIN) ---
-
-// 1. Connexion Staff / Admin
-app.post("/api/staff/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ success: false, error: "Email et mot de passe requis." });
-        }
-
-        const result = await pool.query(
-            "SELECT * FROM staff WHERE LOWER(email) = LOWER($1)",
-            [email.trim()]
-        );
-
-        const staff = result.rows[0];
-        if (!staff || staff.status !== "Active") {
-            return res.status(401).json({ success: false, error: "Identifiants invalides ou compte inactif." });
-        }
-
-        const match = await bcrypt.compare(password, staff.passwordhash);
-        if (!match) {
-            return res.status(401).json({ success: false, error: "Identifiants invalides." });
-        }
-
-        req.session.staffId = staff.id;
-        return res.json({
-            success: true,
-            message: "Connexion réussie.",
-            staff: { id: staff.id, name: staff.name, email: staff.email, role: staff.role }
+        const endpoint = user.authType === "staff" ? "/api/staff/me" : "/api/customers/me";
+        const response = await fetch(endpoint, {
+            method: "GET",
+            credentials: "same-origin"
         });
-    } catch (error) {
-        console.error("Erreur login staff:", error.message);
-        return res.status(500).json({ success: false, error: "Erreur serveur lors de la connexion." });
-    }
-});
-
-// 2. Connexion Client
-app.post("/api/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ success: false, error: "Email et mot de passe requis." });
-        }
-
-        const result = await pool.query(
-            "SELECT * FROM customers WHERE LOWER(email) = LOWER($1)",
-            [email.trim()]
-        );
-
-        const customer = result.rows[0];
-        if (!customer) {
-            return res.status(401).json({ success: false, error: "Identifiants invalides." });
-        }
-
-        const match = await bcrypt.compare(password, customer.passwordhash);
-        if (!match) {
-            return res.status(401).json({ success: false, error: "Identifiants invalides." });
-        }
-
-        req.session.customerId = customer.id;
-        return res.json({
-            success: true,
-            message: "Connexion réussie.",
-            customer: { id: customer.id, fullName: customer.fullName, email: customer.email }
-        });
-    } catch (error) {
-        console.error("Erreur login client:", error.message);
-        return res.status(500).json({ success: false, error: "Erreur serveur lors de la connexion." });
-    }
-});
-
-
-// --- GESTION DES EXPÉDITIONS (SHIPMENTS) ---
-
-// Créer une expédition
-app.post("/api/shipments", requireStaffRole("Admin", "Dispatcher"), async (req, res) => {
-    try {
-        const trackingNumber = String(req.body.trackingNumber || "").trim();
-        const customer = String(req.body.customer || "").trim();
-        const phone = String(req.body.phone || "").trim();
-        const destination = String(req.body.destination || "").trim();
-        const weight = Number(req.body.weight);
-        const status = String(req.body.status || "").trim();
-        const creationDate = String(req.body.creationDate || "").trim();
-        const estimatedDeliveryDate = String(req.body.estimatedDeliveryDate || "").trim();
-        const statuses = ["Pending", "In Transit", "Delivered"];
-        
-        const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-            !Number.isNaN(Date.parse(value)) &&
-            new Date(value).toISOString().slice(0, 10) === value;
-
-        if (!trackingNumber || !customer || !destination ||
-            !Number.isFinite(weight) || weight <= 0 ||
-            !statuses.includes(status) ||
-            !validDate(creationDate) || !validDate(estimatedDeliveryDate)) {
-            return res.status(400).json({
-                success: false,
-                error: "Provide valid shipment details and dates."
-            });
-        }
-
-        if (estimatedDeliveryDate < creationDate) {
-            return res.status(400).json({
-                success: false,
-                error: "Delivery date cannot be before creation date."
-            });
-        }
-
-        const query = `
-            INSERT INTO shipments
-            (trackingNumber, customer, phone, destination, weight, status, customerId, creationDate, estimatedDeliveryDate)
-            VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, $8)
-            RETURNING id
-        `;
-
-        const values = [trackingNumber, customer, phone, destination, weight, status, creationDate, estimatedDeliveryDate];
-        const result = await pool.query(query, values);
-
-        return res.status(201).json({
-            success: true,
-            message: "Shipment created successfully.",
-            shipment: {
-                id: result.rows[0].id,
-                trackingNumber, customer, phone, destination, weight, status,
-                creationDate, estimatedDeliveryDate
-            }
-        });
-    } catch (error) {
-        if (error.code === "23505") { // Violation d'unicité PostgreSQL
-            return res.status(409).json({
-                success: false,
-                error: "That tracking number already exists."
-            });
-        }
-        console.error("Shipment creation error:", error.message);
-        return res.status(500).json({
-            success: false,
-            error: "Unable to create shipment."
-        });
-    }
-});
-
-// Lister les expéditions
-app.get("/api/shipments", async (req, res) => {
-    try {
-        let result;
-
-        if (req.session && req.session.staffId) {
-            const staffResult = await pool.query("SELECT id, status FROM staff WHERE id = $1", [req.session.staffId]);
-            const staff = staffResult.rows[0];
-
-            if (!staff || staff.status !== "Active") {
-                return res.status(403).json({ success: false, error: "Active staff access is required." });
-            }
-
-            result = await pool.query("SELECT * FROM shipments ORDER BY id DESC");
-        } else if (req.session && req.session.customerId) {
-            result = await pool.query("SELECT * FROM shipments WHERE customerId = $1 ORDER BY id DESC", [req.session.customerId]);
+        if (response.ok) {
+            openApplication(user);
         } else {
-            return res.status(401).json({ success: false, error: "Please log in to view shipments." });
+            localStorage.removeItem("ulkaLoggedUser");
         }
-
-        return res.json({
-            success: true,
-            total: result.rows.length,
-            shipments: result.rows
-        });
-    } catch (error) {
-        console.error("Shipment retrieval error:", error.message);
-        return res.status(500).json({ success: false, error: "Unable to retrieve shipments." });
+    } catch (e) {
+        console.error("Session check error:", e);
     }
-});
+}
 
-// Démarrage du serveur
-app.listen(PORT, () => {
-    console.log(`Serveur ULKA-LOGISTICS en cours d'exécution sur le port ${PORT}`);
+document.addEventListener("DOMContentLoaded", () => {
+    checkExistingLogin();
 });
