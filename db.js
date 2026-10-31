@@ -5,8 +5,8 @@ const pool = new Pool({
     ssl: {
         rejectUnauthorized: false
     },
-    // Force IPv4 pour éviter l'erreur ENETUNREACH sur Render
-    family: 4 
+    // Force l'utilisation d'IPv4 pour contourner l'erreur ENETUNREACH sur Render
+    family: 4
 });
 
 pool.on("connect", () => {
