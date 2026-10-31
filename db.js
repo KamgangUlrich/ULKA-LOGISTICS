@@ -1,12 +1,12 @@
 const { Pool } = require("pg");
 
+// Configuration explicite pour forcer IPv4 et éviter l'erreur ENETUNREACH sur Render
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     },
-    // Force l'utilisation d'IPv4 pour contourner l'erreur ENETUNREACH sur Render
-    family: 4
+    family: 4 // Force l'utilisation d'IPv4 (Obligatoire pour Supabase sur Render)
 });
 
 pool.on("connect", () => {

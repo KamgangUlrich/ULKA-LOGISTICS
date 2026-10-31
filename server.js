@@ -204,7 +204,7 @@ async function initializeDatabase() {
     }
 }
 
-initializeDatabase();
+//initializeDatabase();
 
 // --- TEST API ---
 app.get("/api/test", (req, res) => {
